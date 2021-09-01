@@ -13,7 +13,7 @@
           <p>MV数:{{detail.mvSize}}</p>
         </div>
         <div class="getClick">
-          收藏
+          收藏d
         </div>
       </div>
     </div>
