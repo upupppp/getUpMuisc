@@ -23,6 +23,7 @@
 <script>
 import axios from 'axios'
 import audioBox from './components/audio.vue'
+import sass from './assets/styles/index.scss'
 export default {
   components:{
     audioBox
