@@ -65,7 +65,7 @@
             <div class="tags4">时长</div>
           </div>
           <div class="table-tr" @dblclick="playMusic(item.id,index)" v-for="(item,index) in song" :key="index">
-            <div class="tags0">{{index+1}}</div>
+            <div class="tags0">{{index+1>=10?index + 1:'0' + (index + 1)}}</div>
             <div class="tags1">{{item.name}}</div>
             <div class="tags2">{{item.ar[0].name}}</div>
             <div class="tags3">{{item.al.name}}</div>

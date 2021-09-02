@@ -14,10 +14,14 @@ const recommend = () => import('../components/recommend')
 const rank = () => import('../components/rank')
 const playlist = () => import('../components/playlist')
 const radioAnchor = () => import('../components/radioAnchor')
-const singer = () => import('../components/singer')
+const singer = () => import('../components/singer/singer')
 const newSong = () => import('../components/newSong')
 const singList = () => import('../components/singList')
-const singerDetail = () => import('../components/singerDetail')
+const singerDetail = () => import('../components/singerDetail/singerDetail')
+const artist = () => import('../components/singerDetail/artist')
+const MV = () => import('../components/singerDetail/MV')
+const album = () => import('../components/singerDetail/album')
+const detail = () => import('../components/singerDetail/detail')
 
 Vue.use(VueRouter)
 const routes = [
@@ -55,7 +59,29 @@ const routes = [
   },
   {
     path: '/singerDetail',
-    component: singerDetail
+    component: singerDetail,
+    children:[
+      {
+        path: '',
+        redirect: '/singerDetail/album'
+      },
+      {
+        path:'/singerDetail/album',
+        component:album,
+      },
+      {
+        path:'/singerDetail/detail',
+        component:detail,
+      },
+      {
+        path:'/singerDetail/MV',
+        component:MV,
+      },
+      {
+        path:'/singerDetail/artist',
+        component:artist,
+      },
+    ]
   },
 ]
 
