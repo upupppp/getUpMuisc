@@ -22,6 +22,7 @@ const artist = () => import('../components/singerDetail/artist')
 const MV = () => import('../components/singerDetail/MV')
 const album = () => import('../components/singerDetail/album')
 const detail = () => import('../components/singerDetail/detail')
+const Slist = () => import('../components/singer/Slist')
 
 Vue.use(VueRouter)
 const routes = [
@@ -47,7 +48,11 @@ const routes = [
   },
   {
     path: '/singer',
-    component: singer
+    component: singer,
+  },
+  {
+    path: '/Slist',
+    component: Slist
   },
   {
     path: '/newSong',

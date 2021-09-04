@@ -4,7 +4,7 @@
       <div class="area">
         <div >语种:</div>
         <div class="grey pointer" @click="currentTag1(index)" v-for="(item,index) in area1" :class="{singerCurrent:index == c1 }" :key="index">
-          {{item}}
+          <p class="a">{{item}}</p>
         </div>
       </div>
       <div class="type">
@@ -22,21 +22,15 @@
         </div>
       </div>
     </div>
-    <div class="singer-bottom">
-      <div class="singer-artists" v-for="(item,index) in artists" :key="index">
-        <router-link :to="{path: '/singerDetail', query: {id:item.id}}">
-        <img class="artistsPic" :src="item.img1v1Url" >
-        <p>{{item.name}}</p>
-        </router-link>
-      </div>
-      
-    </div>
+    <Slist v-if="isrefresh" :type="type" :area="area" :initial="initial"></Slist>
   </div>
 </template>
 <script>
 import axios from 'axios'
+import Slist from './Slist.vue'
 export default {
-  props: {
+  components: {
+    Slist
   },
   data(){
     return{
@@ -49,7 +43,8 @@ export default {
       c1:0,
       c2:0,
       c3:0,
-      artists:''
+      artists:'',
+      isrefresh: true,
     }
   },
   created() {
@@ -59,17 +54,9 @@ export default {
     currentTag1(index) {
       // 语种
       this.c1 = index;
-      let _this = this;
-// -1:全部
-// 7华语
-// 96欧美
-// 8:日本
-// 16韩国
-// 0:其他
       switch(index) {
         case 0:
           this.area = -1;
-          
           break;
         case 1:
           this.area = 7;
@@ -87,22 +74,37 @@ export default {
           this.area = 0;
           break;
       }
-      this.ms();
+      // 强制使子组件刷新
+      this.isrefresh = false;
+      this.$nextTick(()=> {
+        this.isrefresh = true;
+      })
     },
     currentTag2(index) {
       // 分类
       this.c2 = index;
+      this.type = index == 0?index = -1:index;
+      this.isrefresh = false;
+      this.$nextTick(()=> {
+        this.isrefresh = true;
+      })
     },
     currentTag3(index) {
-      this.c3 = index;
       // 筛选
+      this.c3 = index;
+      if(index == 0) {
+        this.initial = -1;
+      }
+      else{
+        this.initial = this.initial1[index];
+        this.initial = this.initial.toLowerCase();
+      }
+      this.isrefresh = false;
+      this.$nextTick(()=> {
+        this.isrefresh = true;
+      })
     },
-    ms() {
-      axios.get('https://autumnfish.cn/artist/list?type='+ this.type +'&area='+ this.area +'&initial='+ this.initial +'').then((res)=>{
-          console.log(res);
-          this.artists = res.data.artists;
-    });
-    }
+    
   },
   mounted(){
     axios.get('https://autumnfish.cn/artist/list?type='+ this.type +'&area='+ this.area +'&initial='+ this.initial +'').then((res)=>{
@@ -132,7 +134,6 @@ export default {
   padding: 0 5px 0 5px;
 }
 .pointer{
-  cursor: pointer;
   display: inline-block;
   width: 80px;
   border-right: 2px solid rgba(128, 128, 128, 0.089);
@@ -156,24 +157,8 @@ export default {
   line-height: 25px;
   height: 25px;
 }
+.a{
+  cursor: pointer;
+}
 
-.singer-bottom{
-  height: 700px;
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-}
-.singer-bottom>div{
-  width: 18%;
-  margin-bottom: 30px;
-}
-.singer-bottom>div p{
-  font-size: 18px;
-  margin-top: 15px ;
-}
-.singer-bottom>div img{
-  max-width: 100%;
-  max-height: 100%;
-  border-radius: 5px;
-}
 </style>
