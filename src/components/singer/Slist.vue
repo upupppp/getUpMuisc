@@ -44,22 +44,22 @@ export default {
       let scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
       // 滚动条到底部的条件
       if (scrollTop + windowHeight == scrollHeight && this.onPullDown == true && this.page != 3) {
-        this.page = this.page + 1;
+        let page = this.page + 1;
+        this.debounce(page, 200);
       }
-      this.debounce(this.ms(), 1000);
+      
     },
     debounce(args, delay) {
-      // 防抖
+      // 防抖但是这里没必要用而且我这个写不出来防抖效果,这里的实际效果是节流
       let timer;
       let _this = this;
-      console.log('args:',args())
-      return function(args) {
+      let page = args;
         clearTimeout(timer);
-        let timer = setTimeout(function() {
-          this.args();
-          console.log('args:',args)
-        }, delay)
-      }
+         timer = setTimeout(function() {
+          _this.page = page;
+          _this.ms();
+          console.log('args:',page)
+        }, delay)    
     },
     ms() {
       axios.get('https://autumnfish.cn/artist/list?&limit='+ this.page * 30 +'&type='+ this.type +'&area='+ this.area +'&initial='+ this.initial +'').then((res)=>{
