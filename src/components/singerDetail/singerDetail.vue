@@ -1,7 +1,7 @@
 <template>
   <div class="singerDetail">
     <div class="detail">
-      <img :src="detail.img1v1Url" alt="">
+      <img :src="detail.img1v1Url" v-if="detail.img1v1Url!== null" alt="">
       <div class="word">
         <h1>{{detail.name}}</h1>
         <p v-for="(item,index) in detail.alias" :key="index">
@@ -51,7 +51,7 @@ export default {
   data(){
     return{
       id:null,
-      detail:null,  
+      detail:[],  
     }
   },
   created() {
@@ -78,9 +78,9 @@ export default {
   .detail {
     .word 
     {
-      position: absolute;
-      top: 130px;
-      left: 700px;
+      position: relative;
+      top: -280px;
+      left: 330px;
       h1{
       font-size: 30px;
       font-weight: 1000;
@@ -114,18 +114,23 @@ export default {
   }
   .Smain {
     margin-top: 50px;
+    position: relative;
+    top: -150px;
     &>div{
       display: inline-block;
       font-size: 20px;
       color: rgba(0, 0, 0, 0.931) !important;
       margin-right: 30px;
-      
     }
   }
 }
 .router-link-active{
-  color: rgba(0, 0, 0, 0.815);
   border-bottom: 5px solid red;
   padding-bottom: 7px;
+  text-decoration: none;
+  color: rgba(0, 0, 0, 0.801);
+}
+a {
+  text-decoration: none;
 }
 </style>

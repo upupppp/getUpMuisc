@@ -1,6 +1,6 @@
 <template>
   <div class="artist">
-    这是相似歌手
+    相似歌手
   </div>
 </template>
 <script>
@@ -29,6 +29,6 @@ export default {
 <style lang="scss" scoped>
   @import '../../assets/styles/index';
   .artist {
-    @extend %singerDetailC
+    @extend %singerDetailSon;
   }
 </style>

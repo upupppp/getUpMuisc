@@ -29,6 +29,6 @@ export default {
 <style lang="scss" scoped>
   @import '../../assets/styles/index';
   .MV {
-    @extend %singerDetailC
+    @extend %singerDetailSon;
   }
 </style>

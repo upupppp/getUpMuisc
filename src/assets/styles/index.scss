@@ -1,5 +1,26 @@
 %singerDetailC {
-  position: relative;
+  position: absolute;
   top: 60px;
   left: -352px;
+}
+%singerDetailSon {
+  position: relative;
+  top: 60px;
+  left: -355px;
+}
+%grey1 {
+  background:rgba(128, 128, 128, 0.123) ;
+}
+%grey {
+  color: rgba(44, 33, 33, 0.719);
+  font-weight: 100;
+  cursor: default;
+}
+.odd {
+  background:rgba(128, 128, 128, 0.041) ;
+}
+%overflow{
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
 }

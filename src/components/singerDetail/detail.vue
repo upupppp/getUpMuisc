@@ -29,6 +29,6 @@ export default {
 <style lang="scss" scoped>
   @import '../../assets/styles/index';
   .detail {
-    @extend %singerDetailC
+    @extend %singerDetailSon;
   }
 </style>
