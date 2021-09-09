@@ -40,11 +40,10 @@
       </div>
     </div>
     <div class="other">
-      
-      <div class="album" v-for="(item,index) in album" :key="index">
-        <h1>{{item.name}}</h1>
-        <div v-for="(item,index) in album" :key="item.index" v-show="topFlag" :class="{odd:index%2 == 0}">
-          <img :src="item.blurPicUrl" alt="">
+      <img src="../../assets/img/top50.png" alt="">
+      <div class="album">
+        <h1>热门50首</h1>
+        <div v-for="(item,index) in top50" :key="item.index" v-show="topFlag" :class="{odd:index%2 == 0}">
           <div class="item1">
             {{index + 1 >= 10?index + 1:'0' + (index + 1)}}
           </div>
@@ -194,7 +193,7 @@ export default {
       @extend .top50;
       height: 1000px;
       position: relative;
-      top: -140px;
+      top: -150px;
     }
   }
 </style>
