@@ -13,7 +13,7 @@
                     {{playlist.name}}
                 </div>
             </div>
-            <div class="author-detail">
+            <div class="author-detail" >
               <div class="author-pic">
                 <img :src="playlist.creator.avatarUrl" alt="">
               </div>
@@ -64,7 +64,7 @@
             <div class="tags3">专辑</div>
             <div class="tags4">时长</div>
           </div>
-          <div class="table-tr" @dblclick="playMusic(item.id,index)" v-for="(item,index) in song" :key="index">
+          <div class="table-tr" :class="{odd:index%2 == 0}" @dblclick="playMusic(item.id,item.al.picUrl,item.name,item.ar[0].name)" v-for="(item,index) in song" :key="index">
             <div class="tags0">{{index+1>=10?index + 1:'0' + (index + 1)}}</div>
             <div class="tags1">{{item.name}}</div>
             <div class="tags2">{{item.ar[0].name}}</div>
@@ -85,7 +85,7 @@ export default {
     return{
         id:null,
         pic:null,
-        playlist:{},
+        playlist:[],
         privileges:[],
         createdTime:null,
         flag:true,
@@ -122,19 +122,16 @@ export default {
           console.log('song:',res);
       });
     },
-    playMusic(id,index) {
+    playMusic(id,pic,name,singerName) {
       let url = null;
       axios.get('https://autumnfish.cn/song/url?id='+id).then((res)=>{
-        
             url = res.data.data[0].url;
             this.$store.state.url = url;
-            this.$store.state.picUrl = this.song[index].al.picUrl;
-            this.$store.state.singname = this.song[index].name;
-            this.$store.state.singer = this.song[index].ar[0].name;
-            console.log(this.song[index].al);
+            this.$store.state.picUrl = pic;
+            this.$store.state.singname = name;
+            this.$store.state.singer = singerName;
             this.$store.state.musicPlay = true;
             this.$store.state.flag = true;
-            console.log(this.$store.state.musicPlay);
       });
     }
   },
@@ -159,7 +156,8 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
+@import '../assets/styles/index';
 .singList{
   width: 60%;
   height: 1500px;
