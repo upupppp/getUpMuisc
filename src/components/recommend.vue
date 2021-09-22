@@ -114,7 +114,7 @@ export default {
             this.$store.state.picUrl = song.picUrl;
             this.$store.state.singer = song.song.artists[0].name;
             this.$store.state.singname = song.name;
-            console.log(song);
+            // console.log(song);
             this.$store.state.musicPlay = true;
             this.$store.state.flag = true;
       });
@@ -123,18 +123,18 @@ export default {
   mounted(){
     axios.get('https://autumnfish.cn/personalized?limit=8').then((res)=>{
       this.personalized = res.data.result;
-          console.log(this.personalized);
+          // console.log(this.personalized);
     });
     axios.get('https://autumnfish.cn/personalized/privatecontent').then((res)=>{
       this.privatecontent = res.data.result;
-          console.log(this.privatecontent);
+          // console.log(this.privatecontent);
     });
     axios.get('https://autumnfish.cn//personalized/newsong?limit=12').then((res)=>{
       this.newsong = res.data.result;
     });
     axios.get('https://autumnfish.cn/personalized/mv').then((res)=>{
       this.mvList = res.data.result;
-          console.log(this.mvList);
+          // console.log(this.mvList);
     });
     }
 }

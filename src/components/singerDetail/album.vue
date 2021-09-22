@@ -1,10 +1,10 @@
 <template>
-  <div class="Album">
-    <div class="top50">
+  <div class="Album" >
+    <div class="top50" >
       <img src="../../assets/img/top50.png" alt="">
       <div class="album">
         <h1>热门50首</h1>
-        <div v-for="(item,index) in top50" :key="item.index" v-show="topFlag" :class="{odd:index%2 == 0}">
+        <div v-for="(item,index) in top50" :key="item.index" @dblclick="playMusic(item.id,item.al.picUrl,item.name,item.ar[0].name)" v-show="topFlag" :class="{odd:index%2 == 0}">
           <div class="item1">
             {{index + 1 >= 10?index + 1:'0' + (index + 1)}}
           </div>
@@ -19,7 +19,7 @@
 
           </div>
         </div>
-        <div v-for="(item,index) in getTop10" :key="index" v-show="!topFlag" :class="{odd:index%2 == 0}">
+        <div v-for="(item,index) in getTop10" @dblclick="playMusic(item.id,item.al.picUrl,item.name,item.ar[0].name)" :key="index" v-show="!topFlag" :class="{odd:index%2 == 0}">
           <div class="item1">
             {{10 > (index + 1)? '0' + (index+1):index+1}}
           </div>
@@ -42,23 +42,13 @@
     <div class="other" v-for="(item,index) in album" :key="index">
       <div class="album" v-if="songs[index]">
         <div class="pic">
-          <img :src="item.picUrl" alt="">
+          <img v-lazy="item.picUrl" alt="">
           <p>{{getDate(item.publishTime)}}</p>
           </div>
         <div class="word">
           <div class="h1">
             {{item.name}}
           </div>
-          <!-- <div class="songs" v-for="(item,index) in songs[index]" :key="index" :class="{odd:index%2 == 0}">
-            <div class="item1">{{index + 1 >= 10?index + 1:'0' + (index + 1)}}</div>
-            <div class="item2">{{item.name}}</div>
-            <div class="item3">{{getTime(item.dt)}}</div>
-          </div>
-          <div class="more" v-if="songs[index].length >10">
-            查看全部{{songs[index].length}}首 >
-          </div> -->
-
-
           <div class="songs" v-for="(item,index) in gotTop10[index]" @dblclick="playMusic(item.id,item.al.picUrl,item.name,item.ar[0].name)" :key="index" :class="{odd:index%2 == 0}">
             <div class="item1">{{index + 1 >= 10?index + 1:'0' + (index + 1)}}</div>
             <div class="item2">{{item.name}}</div>
@@ -84,6 +74,10 @@ export default {
       artist:[],
       topFlag:false,
       songs:[],
+      limit:5,
+      page:1,
+      onPullDown:true,
+      loading:true,
     }
   },
   created() {
@@ -102,6 +96,43 @@ export default {
     }
   },
   methods: {
+    handleScroll() {
+      // scrollTop 滚动条滚动时,距离顶部的距离
+      let scrollTop = document.documentElement.scrollTop  || document.body.scrollTop;
+      // 可视区高度
+      let windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
+      // 滚动条总高度
+      let scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+      // 滚动条到底部的条件
+      if (scrollTop + windowHeight == scrollHeight && this.onPullDown == true) {
+        let page = this.page + 1;
+        this.debounce(page, 1);
+      }
+    },
+    debounce(args, delay) {
+      // 防抖但是这里没必要用而且我这个写不出来防抖效果,这里的实际效果是节流
+      let timer;
+      let _this = this;
+      let page = args;
+        clearTimeout(timer);
+         timer = setTimeout(function() {
+          _this.page = page;
+          _this.ms();
+          // console.log('args:',page)
+        }, delay)    
+    },
+    ms() {
+      axios.get('https://autumnfish.cn/artist/album?id='+ this.id+'&limit='+ this.limit * this.page +'').then((res)=>{
+          this.album = res.data.hotAlbums;
+          // this.artist = res.data.artist;
+          // console.log('album:',this.album);
+          for (let index in this.album) {
+            this.getAlbum(this.album[index].id);
+            // console.log(index);
+          }
+          console.log(1);
+    });
+    },
     getTime(time) {
       let second = Math.floor(time / 1000);
       let min = Math.floor(second / 60 % 60);
@@ -121,7 +152,7 @@ export default {
     getAlbum(id) {
         axios.get('https://autumnfish.cn/album?id='+id+'').then((res)=>{
           this.songs.push(res.data.songs);
-          console.log('ada',this.songs);
+          // console.log('ada',this.songs);
       });
     },
     playMusic(id,pic,name,singerName) {
@@ -138,23 +169,25 @@ export default {
     }
   },
   mounted(){
-    axios.get('https://autumnfish.cn/artist/album?id='+ this.id +'&limit=50').then((res)=>{
+    axios.get('https://autumnfish.cn/artist/album?id='+ this.id +'&limit='+ this.limit+'').then((res)=>{
           
           this.album = res.data.hotAlbums;
-          this.artist = res.data.artist;
-          console.log('album:',this.album);
+          // this.artist = res.data.artist;
+          // console.log('album:',this.album);
           for (let index in this.album) {
             this.getAlbum(this.album[index].id);
             // console.log(index);
           }
+          // setInterval(()=>{
+          //   this.loading = false;
+          // },700)
+          window.addEventListener('scroll',this.handleScroll);
+          // window.addEventListener('scroll',this.handleScroll);
     });
     axios.get('https://autumnfish.cn/artist/top/song?id='+ this.id +'').then((res)=>{
           
           this.top50 = res.data.songs;
-          console.log('top50:',this.top50);
-    });
-    axios.get('https://autumnfish.cn/album?id=95509227').then((res)=>{
-          console.log('album1:',res); 
+          // console.log('top50:',this.top50);
     });
     }
 }

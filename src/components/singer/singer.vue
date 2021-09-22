@@ -108,7 +108,7 @@ export default {
   },
   mounted(){
     axios.get('https://autumnfish.cn/artist/list?type='+ this.type +'&area='+ this.area +'&initial='+ this.initial +'').then((res)=>{
-          console.log(res);
+          // console.log(res);
           this.artists = res.data.artists;
     });
     }

@@ -23,7 +23,7 @@ const MV = () => import('../components/singerDetail/MV')
 const album = () => import('../components/singerDetail/album')
 const detail = () => import('../components/singerDetail/detail')
 const Slist = () => import('../components/singer/Slist')
-
+const mvSon = () => import('../components/mvSon')
 Vue.use(VueRouter)
 const routes = [
   {
@@ -61,6 +61,10 @@ const routes = [
   {
     path: '/singList',
     component: singList
+  },
+  {
+    path:'/mvSon',
+    component:mvSon,
   },
   {
     path: '/singerDetail',

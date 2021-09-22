@@ -1,3 +1,21 @@
+// 黑色的主要使用层级
+$b-first:#303133;
+$b-second:#606266;
+$b-third:#909399;
+$b-fourth:#C0C4CC;
+
+// 边框的主要使用层级
+$bd-first:#DCDFE6;
+$bd-second:#E4E7ED;
+$bd-third:#EBEEF5;
+$bd-fourth:#F2F6FC;
+
+// 取消点击时出现的边框
+input,textarea {
+  outline: none;
+  resize: none;
+  // 取消拉框
+}
 %singerDetailC {
   position: absolute;
   top: 60px;
@@ -23,4 +41,9 @@
   overflow: hidden;
   text-overflow:ellipsis;
   white-space: nowrap;
+}
+%main {
+  width: 70%;
+  margin: 0 auto;
+  margin-top: 40px;
 }

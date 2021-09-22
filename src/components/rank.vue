@@ -47,7 +47,7 @@ export default {
   },
   mounted(){
     axios.get('https://autumnfish.cn/toplist/detail').then((res)=>{
-          console.log('详情:',res);
+          // console.log('详情:',res);
           this.topMsg = res.data.list.filter( n => n.ToplistType != null);
           this.bottomMsg = res.data.list.filter( n => n.ToplistType == null);
           console.log(this.topMsg);

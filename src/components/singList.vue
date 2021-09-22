@@ -107,7 +107,7 @@ export default {
       let deg = this.$refs.description;
       setTimeout(function() {
         content.style.top = deg.offsetHeight + 80 + 'px';
-        console.log(content);
+        // console.log(content);
       },20)
     },
     current(index) {
@@ -115,11 +115,11 @@ export default {
     },
     getId() {
       axios.get('https://autumnfish.cn/song/url?id='+this.songId).then((res)=>{
-          console.log('oth:',res);
+          // console.log('oth:',res);
       });
       axios.get('https://autumnfish.cn/song/detail?ids='+this.songId).then((res)=>{
         this.song = res.data.songs;
-          console.log('song:',res);
+          // console.log('song:',res);
       });
     },
     playMusic(id,pic,name,singerName) {
@@ -137,17 +137,17 @@ export default {
   },
   mounted(){
     axios.get('https://autumnfish.cn/playlist/detail/dynamic?id=' +this.id).then((res)=>{
-          console.log('dynamic:',res);
+          // console.log('dynamic:',res);
     });
     axios.get('https://autumnfish.cn/playlist/detail?id=' +this.id).then((res)=>{
-          console.log('detail:',res);
+          // console.log('detail:',res);
           this.playlist = res.data.playlist;
           this.privileges = res.data.privileges;
           let _this = this;
           this.createdTime = formatDate(new Date(this.playlist.createTime), 'yyyy-MM-dd hh:mm');
           for( let key in this.playlist.trackIds) {
             _this.songId.push(this.playlist.trackIds[key].id);
-            console.log(_this.songId);
+            // console.log(_this.songId);
           }
           this.getId();
     });

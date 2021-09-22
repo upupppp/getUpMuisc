@@ -24,7 +24,7 @@
         </router-link>
       </div>
       <div>
-        <router-link :to="{path: '/singerDetail/MV', query: {id:id}}">
+        <router-link :to="{path: '/singerDetail/MV', query: {id:id,avatar:avatar}}">
         MV
         </router-link>
       </div>
@@ -38,7 +38,7 @@
         相似歌手
         </router-link>
       </div>
-      <router-view/>
+        <router-view/>
     </div>
     
   </div>
@@ -51,7 +51,8 @@ export default {
   data(){
     return{
       id:null,
-      detail:[],  
+      detail:[],
+      avatar:String,
     }
   },
   created() {
@@ -64,7 +65,9 @@ export default {
     axios.get('https://autumnfish.cn/artists?id= '+ this.id +'').then((res)=>{
           console.log(res);
           this.detail = res.data.artist;
+          this.avatar = res.data.artist.img1v1Url;
           this.id = res.data.artist.id;
+          this.$store.state.imgUrl = this.detail.picUrl;
     });
     }
 }
@@ -114,7 +117,11 @@ export default {
   }
   .Smain {
     margin-top: 50px;
+    // position: absolute;
+    // top: 430px;
+    // left: 390px;
     position: relative;
+    top: -150px;
     top: -150px;
     &>div{
       display: inline-block;
