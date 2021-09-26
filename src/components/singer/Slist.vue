@@ -71,9 +71,9 @@ export default {
     axios.get('https://autumnfish.cn/artist/list?limit=30&type='+ this.type +'&area='+ this.area +'&initial='+ this.initial +'').then((res)=>{
           console.log('Slist:',res);
           this.artists = res.data.artists;
-           setTimeout(()=>{
+          setTimeout(()=>{
              this.loading = false;
-            },700)
+          },700)
           
     });
     // this.$nextTick(() => {

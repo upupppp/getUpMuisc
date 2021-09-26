@@ -13,15 +13,15 @@
         <div class="title">
           {{item.ti}}
         </div>
-        <div class="content" v-if="index == 0">
-          {{item.txt}}
+        <div class="content" v-for="(item,index) in getContent[index]" :key="index" >
+          {{item}}
         </div>
-        <div class="content" :class="{indentContent1:index == 1}" v-show="index == 1" v-for="item in getContent1" :key="item.id">
+        <!-- <div class="content" :class="{indentContent1:index == 1}" v-show="index == 1" v-for="item in getContent" :key="item.id">
           <span class="indent">{{item}}</span>
         </div>
         <div class="content" :class="{indentContent:index == 2}" v-show="index == 2" v-for="item in getContent" :key="item.id">
           <span class="indent">{{item}}</span>
-        </div>
+        </div> -->
       </div>
       <div class="footer">
 
@@ -40,23 +40,34 @@ export default {
       desc:Object,
       details:Object,
       indentContent:null,
+      arr:[],
     }
   },
   created() {
     this.id = this.$route.query.id;
   },
   computed: {
+    // getContent() {
+    //   let arr = this.desc[2].txt.split(/[\n]/);
+    //   return arr;
+    // },
+    // getContent1() {
+    //   let arr = this.desc[1].txt.split(/[\n]/);
+    //   return arr;
+    // }
     getContent() {
-      let arr = this.desc[2].txt.split(/[\n]/);
-      return arr;
-    },
-    getContent1() {
-      let arr = this.desc[1].txt.split(/[\n]/);
-      return arr;
+      for(let i = 0; i < this.desc.length; i++) {
+        this.arr.push(this.desc[i].txt.split(/[\n]/));
+      }
+      console.log(this.arr);
+      return this.arr;
     }
   },
   methods: {
-    
+    // getContent(content) {
+    //   let arr = content.split(/[\n]/);
+    //   return arr;
+    // },
   },
   mounted(){
     axios.get('https://autumnfish.cn/artist/detail?id='+ this.id +'').then((res)=>{
@@ -98,13 +109,8 @@ export default {
       }
       .content {
         white-space: pre-line;
-        // 让有\n的换行
-      }
-      .indentContent {
         margin-bottom: 0px !important;
-      }
-      .indentContent1 {
-        @extend .indentContent;
+        // 让有\n的换行
       }
     }
     .footer {

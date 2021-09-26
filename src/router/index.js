@@ -24,6 +24,7 @@ const album = () => import('../components/singerDetail/album')
 const detail = () => import('../components/singerDetail/detail')
 const Slist = () => import('../components/singer/Slist')
 const mvSon = () => import('../components/mvSon')
+const infoMsg = () => import('../components/infoMsg')
 Vue.use(VueRouter)
 const routes = [
   {
@@ -91,6 +92,10 @@ const routes = [
         component:artist,
       },
     ]
+  },
+  {
+    path:'/infoMsg',
+    component:infoMsg,
   },
 ]
 

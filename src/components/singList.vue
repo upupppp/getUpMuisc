@@ -13,12 +13,12 @@
                     {{playlist.name}}
                 </div>
             </div>
-            <div class="author-detail" >
-              <div class="author-pic">
+            <div class="author-detail" v-if="playlist.creator" >
+              <div class="author-pic" >
                 <img :src="playlist.creator.avatarUrl" alt="">
               </div>
               <div class="author-nickname">
-                <p class="text-blue">{{playlist.creator.nickname}}</p>
+                <p class="text-blue"><router-link :to="{path: '/infoMsg', query: {id:playlist.creator.userId,mine:false}}" class="text-blue">{{playlist.creator.nickname}}</router-link></p>
                 <p class="font-color">{{createdTime}}创建</p>
               </div>
             </div>
@@ -69,7 +69,7 @@
             <div class="tags1">{{item.name}}</div>
             <div class="tags2">{{item.ar[0].name}}</div>
             <div class="tags3">{{item.al.name}}</div>
-            <div class="tags4">4</div>
+            <div class="tags4">{{getTime(item.dt)}}</div>
           </div>
       </div>
     </div>
@@ -85,7 +85,7 @@ export default {
     return{
         id:null,
         pic:null,
-        playlist:[],
+        playlist:Object,
         privileges:[],
         createdTime:null,
         flag:true,
@@ -133,7 +133,13 @@ export default {
             this.$store.state.musicPlay = true;
             this.$store.state.flag = true;
       });
-    }
+    },
+    getTime(time) {
+      let second = Math.floor(time / 1000);
+      let min = Math.floor(second / 60 % 60);
+      let sec = Math.floor(second % 60);
+      return (min >= 10?min:'0'+ min) + ':' + (sec >= 10?sec:'0' + sec);
+    },
   },
   mounted(){
     axios.get('https://autumnfish.cn/playlist/detail/dynamic?id=' +this.id).then((res)=>{
@@ -159,7 +165,7 @@ export default {
 <style lang="scss" scoped>
 @import '../assets/styles/index';
 .singList{
-  width: 60%;
+  width: 61%;
   height: 1500px;
   /* background: red; */
   margin: 0 auto;
@@ -187,7 +193,11 @@ export default {
   height: 100%;
   cursor: pointer;
 }
-
+.over {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .singList-text{
   position: absolute;
   top: 10px;
@@ -307,8 +317,9 @@ export default {
 .singList-table{
   width: 100%;
   /* background: cadetblue; */
-  height: 1000px;
+  // height: 1000px;
   font-size: 18px;
+  padding-bottom: 80px;
 }
 .table-th{
   padding-left: 130px;
@@ -351,8 +362,12 @@ export default {
   text-align: left;
   line-height: 45px;
   padding-left: 3.5px;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  text-overflow:ellipsis;
 }
 .table-tr:hover{
   background:rgba(128, 128, 128, 0.123) ;
+  cursor: default;
 }
 </style>

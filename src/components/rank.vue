@@ -1,6 +1,6 @@
 <template>
-  <div class="rank">
-    <div class="rank-top">
+  <div class="rank" v-if="!loading">
+    <div class="rank-top" v-loading="loading">
       <p class="h1">官方榜</p>
       <div class="rank-topList" >
         <div class="topList-b" v-for="item in topMsg" :key="item.index">
@@ -13,7 +13,7 @@
         </div>
       </div>
     </div>
-    <div class="rank-bottom">
+    <div class="rank-bottom" v-loading="loading">
       <p class="h1">全球榜</p>
       <div class="rank-bottomList">
         <div class="bottomList-b" v-for="item in bottomMsg" :key="item.index">
@@ -38,6 +38,7 @@ export default {
     return{
       topMsg:'',
       bottomMsg:'',
+      loading:true,
     }
   },
   created() {
@@ -52,6 +53,9 @@ export default {
           this.bottomMsg = res.data.list.filter( n => n.ToplistType == null);
           console.log(this.topMsg);
           console.log(this.bottomMsg);
+          setTimeout(()=>{
+             this.loading = false;
+          },700)
     });
     }
 }

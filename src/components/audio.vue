@@ -87,6 +87,7 @@ audio{
     height: 100%;
     max-height: 100%;
     max-width: 100%;
+    cursor: pointer;
     border-radius: 5px;
 }
 .audio-left>div{
@@ -94,13 +95,18 @@ audio{
 }
 .audio-text{
     position: relative;
-    top: -15px;
+    top: 0px;
+    cursor: pointer;
 }
 .audio-text>p{
     margin-bottom: 10px;
 }
 .middle{
     font-size: 20px;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 200px;
+    /* text-overflow: ellipsis; */
 }
 .audio-middle{
     position: absolute;

@@ -1,7 +1,14 @@
 <template>
   <div class="recommend">
     <div class="recommend-header">
-
+      <div class="banner">
+        <el-carousel :interval="4000" type="card" height="300px">
+          <el-carousel-item class="other" v-for="item in banner" :key="item.index">
+            <img :src="item.imageUrl" alt="" @click="onBanner(item.encodeId,item.targetType)">
+            <h3 class="medium">{{item.typeTitle}}</h3>
+          </el-carousel-item>
+        </el-carousel>
+      </div>
     </div>
     <div class="recommend-content">
         <div class="content1">
@@ -31,12 +38,14 @@
           </div>
           <div class="contentMain">
             <div class="MainsList" v-for="(item,index) in privatecontent" :key="index">
+              <router-link :to="{path: '/mvSon', query: {id:item.id}}">
               <div class="MainsList2-img">
                 <img :src="item.picUrl" alt="">
               </div>
               <div class="MainsList-text">
                 <p>{{item.name}}</p>
               </div>
+              </router-link>
             </div>
           
           </div>
@@ -55,9 +64,16 @@
                 <img @click="playMusic(item,item.song.id)" src="~@/assets/img/播放.png" alt="">
               </div>
               <div class="main-text">
-                <div class="over">{{item.name}}</div>
+                <div class="over">
+                  <!-- <el-tooltip class="item" effect="light" :content="item.name" placement="bottom">
+                    <el-tap style="background:none;position: relative;left:-24px">{{item.name}}</el-tap>
+                  </el-tooltip> -->
+                  {{item.name}}
+                  </div>
                 <div class="text-singer" v-for="(songs,songIndex) in item.song.artists" :key="songIndex">
-                  <p>{{songs.name}} </p>
+                  <router-link :to="{path: '/singerDetail', query: {id:songs.id}}">
+                  <p>{{songIndex == 0?songs.name: '/' + songs.name}}</p>
+                  </router-link>
                 </div>
               </div>
             </div>
@@ -70,6 +86,7 @@
           </div>
           <div class="contentMain">
             <div class="MainList" v-for="(item,index) in mvList" :key="index">
+              <router-link :to="{path: '/mvSon', query: {id:item.id}}">
               <div class="MainList-img">
                 <img :src="item.picUrl" alt="">
               </div>
@@ -77,10 +94,12 @@
                 <div class="singerName">
                   {{item.name}}
                 </div>
-                <div class="name grey">
-                  {{item.artistName}}
+                <div class="name grey" v-for="(item,index) in item.artists" :key="index">
+                  {{index == 0?item.name: '/' + item.name}}
+                  <!-- {{item.artistName}} -->
                 </div>
               </div>
+              </router-link>
             </div>
           </div>
         </div>
@@ -99,7 +118,9 @@ export default {
       personalized:[],
       privatecontent:[],
       newsong:[],
-      mvList:[],
+      mvList:Array,
+      name:[],
+      banner:Object,
     }
   },
   created() {
@@ -118,7 +139,19 @@ export default {
             this.$store.state.musicPlay = true;
             this.$store.state.flag = true;
       });
-    }
+    },
+    onBanner(id,type) {
+      // console.log(id);
+      // if(type == 10) {
+      //   this.$router.push({path:'/singList',query: {id:id}})
+      // }
+      // if(type == 1004) {
+      //   this.$router.push({path:'/mvSon',query: {id:id}})
+      // }
+      if(type = 1) {
+        console.log(type);
+      }
+    },
   },
   mounted(){
     axios.get('https://autumnfish.cn/personalized?limit=8').then((res)=>{
@@ -131,223 +164,331 @@ export default {
     });
     axios.get('https://autumnfish.cn//personalized/newsong?limit=12').then((res)=>{
       this.newsong = res.data.result;
+      // console.log('newsong:',this.newsong)
     });
     axios.get('https://autumnfish.cn/personalized/mv').then((res)=>{
       this.mvList = res.data.result;
-          // console.log(this.mvList);
     });
+    axios.get('https://autumnfish.cn/banner').then((res) => {
+                // console.log(res);
+                this.banner = res.data.banners;
+                console.log('banner:',this.banner);
+            });
     }
 }
 </script>
 
-<style>
-.recommend-header{
-  width: 60%;
-  height: 350px;
-  background: red;
-  margin: 0 auto;
-}
-.recommend-content{
-  padding-top: 20px;
-  width: 58%;
-  margin: 0 auto;
-}
-.contentTitle{
-  width: 95%;
-  margin-left: 30px;
-}
-#hr{
-  border-bottom: 2px solid rgba(202, 26, 26, 0.788);
-}
-.contentTitle>div{
-  display: inline-block;
-  padding: 10px 5px 10px 5px;
-}
-.big{
-  font-size: 25px;
-  font-weight: 300;
-}
-.contentTitle img{
-  width: 20px;
-}
-.content1{
-  width: 100%;
-}
-.content1 .contentMain{
-  display: flex;
-  justify-content: space-around;
-  flex-wrap:wrap;
-}
-.content1 .contentMain>div{
-  margin: 20px 20px 170px 20px;
-  width: 20%;
-  height: 100px;
-  cursor: pointer;
-}
-.content1 .MainsList-img{
-  width: auto;
-  height: auto;
-  max-width: 100%;
-  max-height: 100%;
-}
-.MainsList-img img{
-  width: 180px;
-}
-.content1 .MainsList-text{
-  position: relative;
-  top: 95px;
-}
-.content1 .MainsList-text:hover{
-  text-decoration: underline;
-}
-.content1 .MainsList-playCount{
-  position: relative;
-  background: rgba(7,17,27,0.8);
-  width: 180px;
-  height: 35px;
-  color: rgba(255, 255, 255, 0.829);
-  opacity:0.65;
-  top: -38px;
-  text-align: center;
-  line-height: 35px;
-  cursor:default !important;
-}
-.content1 .MainsList-playCount>div{
-  display: inline-block;
-  margin-right: 10px;
-}
-.content1 .small-logo img{
-  width: 15px;
-}
-
-
-
-.content2{
-  width: 100%;
-}
-.content2 .contentMain{
-  display: flex;
-  justify-content: space-around;
-}
-.content2 .contentMain>div {
-  margin: 20px 20px 20px 30px;
-  width:30%;
-}
-.content2 .MainsList2-img img{
-  width: 100%;
-}
-.content2 .MainsList-text{
-  position: relative;
-  top: 15px;
-  cursor: pointer;
-}
-.content2 .MainsList-text:hover{
-  text-decoration: underline;
-}
-
-
-.content3{
-  width: 100%;
-  margin-top: 30px;
-}
-.content3 .contentMain{
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  width: 100%;
-}
-.content3 .contentMain>div{
-  height: 80px;
-  width: 29%;
-  margin: 20px 5px 10px 15px;
-  border-radius: 5px;
-}
-.content3 .contentMain>div:hover{
-  background: rgba(128, 128, 128, 0.301);
-}
-.content3 .main-img{
-  width: 80px;
-  cursor: pointer;
-}
-.main-img img{
-  width: 100%;
-  width: 100%;
-  max-height: 100%;
-  max-width: 100%;
-  border-radius: 5px;
-}
-.over{
-  width: 210px;
-  overflow: hidden;
-  text-overflow:ellipsis;
-  white-space: nowrap;
-}
-.main-text{
-  position: relative;
-  top: -115px;
-  left: 90px;
-  font-size: 18px;
-}
-.main-text>div{
-  margin-bottom: 25px;
-}
-.text-singer{
-  display: inline-block;
-  color: rgba(128, 128, 128, 0.76);
-}
-.text-singer:hover{
-  color: rgba(0, 0, 0, 0.616);
-  cursor: pointer;
-}
-
-
-.content4{
-  width: 100%;
-  margin-top: 30px;
-}
-.content4 .contentMain{
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-}
-.content4 .contentMain>div{
-  width: 45%;
-  margin: 20px 20px 40px 20px;
-}
-.content4.MainsList-img{
-  width: 200px;
-}
-.MainList-img img{
-  max-width: 100%;
-  max-height: 100%;
-  width: 100%;
-  height: 100%;
-  border-radius: 5px;
-  cursor: pointer;
-}
-.MainList-text>div{
-  margin-top: 15px;
-  font-size: 19px;
-  cursor: pointer;
-}
-.MainList-text>div:hover{
-  color: rgba(0, 0, 0, 0.788);
-}
-.grey{
-  color: rgba(0, 0, 0, 0.609);
-}
-
-.playBtn{
-  width: 40px;
-  position: relative;
-  top: -60px;
-  left: 20px;
-  cursor: pointer;
-}
-.playBtn img{
-  max-width: 100%;
-  max-height: 100%;
-  width: 100%;
-  height: 100%;
+<style lang="scss" scoped>
+@import '../assets/styles/index';
+.recommend {
+  .recommend-header{
+    
+    width: 60%;
+    height: 350px;
+    margin: 0 auto;
+    .el-carousel__item h3 {
+    color: #FFFFFF;
+    font-size: 17px;
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    margin: 0;
+    z-index: 999;
+    height: 30px;
+    padding: 0px 10px 0px 10px;
+    line-height: 30px;
+    border-radius: 10px;
+    background: rgba(255, 69, 36, 0.74);
+    }
+    .banner {
+      padding-top: 30px;
+      width: 100%;
+      img {
+        cursor: pointer;
+        max-width: 100%;
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+      }
+  }
+  }
+  .recommend-content{
+    padding-top: 20px;
+    width: 58%;
+    margin: 0 auto;
+    .content1{
+      width: 100%;
+      #hr{
+      border-bottom: 2px solid rgba(202, 26, 26, 0.788);
+      }
+      .contentTitle{
+        width: 95%;
+        margin-left: 30px;
+        img {
+          width: 20px;
+        }
+        &>div {
+          display: inline-block;
+          padding: 10px 5px 10px 5px;
+        }
+        .big{
+          font-size: 25px;
+          font-weight: 300;
+        }
+      }
+      .contentMain{
+        display: flex;
+        justify-content: space-around;
+        flex-wrap:wrap;
+        &>div {
+          margin: 20px 20px 170px 20px;
+          width: 20%;
+          height: 100px;
+          cursor: pointer;
+        }
+        .MainsList {
+          .MainsList-img{
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 100%;
+            .small-logo img{
+              width: 15px;
+            }
+            .MainsList-playCount{
+              position: relative;
+              background: rgba(7,17,27,0.8);
+              width: 180px;
+              height: 35px;
+              color: rgba(255, 255, 255, 0.829);
+              opacity:0.65;
+              top: -38px;
+              text-align: center;
+              line-height: 35px;
+              cursor:default !important;
+              &>div {
+                display: inline-block;
+                margin-right: 10px;
+              }
+            }           
+            img {
+              width: 180px;
+            }
+          }
+          .MainsList-text{
+            position: relative;
+            top: 95px;
+            white-space:wrap;
+            width: 180px;
+            &:hover {
+              text-decoration: underline;
+            }
+          }         
+        }
+      }
+    }
+    .content2{
+      width: 100%;
+      #hr{
+      border-bottom: 2px solid rgba(202, 26, 26, 0.788);
+      }
+      .contentTitle{
+        width: 95%;
+        margin-left: 30px;
+        img {
+          width: 20px;
+        }
+        &>div {
+          display: inline-block;
+          padding: 10px 5px 10px 5px;
+        }
+        .big{
+          font-size: 25px;
+          font-weight: 300;
+        }
+      }
+      .contentMain{
+        display: flex;
+        justify-content: space-around;
+        &>div {
+          margin: 20px 20px 20px 30px;
+          width:30%;
+        }
+        .MainsList {
+          .MainsList2-img {
+            img {
+              width: 100%;
+            }
+          }
+          .MainsList-text{
+            position: relative;
+            top: 15px;
+            cursor: pointer;
+            white-space: wrap;
+            width: 100%;
+            &:hover {
+              text-decoration: underline;
+            }
+          }
+        }
+      }
+    }
+    .content3{
+      width: 100%;
+      margin-top: 30px;
+      #hr{
+      border-bottom: 2px solid rgba(202, 26, 26, 0.788);
+      }
+      .contentTitle{
+        width: 95%;
+        margin-left: 30px;
+        img {
+          width: 20px;
+        }
+        &>div {
+          display: inline-block;
+          padding: 10px 5px 10px 5px;
+        }
+        .big{
+          font-size: 25px;
+          font-weight: 300;
+        }
+      }
+      .contentMain{
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        width: 100%;
+        .MainsList {
+          .main-img{
+            width: 80px;
+            cursor: pointer;
+            img{
+              width: 100%;
+              width: 100%;
+              max-height: 100%;
+              max-width: 100%;
+              border-radius: 5px;
+            }
+          }
+          .playBtn{
+            width: 40px;
+            position: relative;
+            top: -60px;
+            left: 20px;
+            cursor: pointer;
+            img{
+              max-width: 100%;
+              max-height: 100%;
+              width: 100%;
+              height: 100%;
+            }
+          }
+          .main-text {
+            position: relative;
+            top: -115px;
+            left: 90px;
+            font-size: 18px;
+            width: 210px;
+            overflow: hidden;
+            text-overflow:ellipsis;
+            white-space: nowrap;
+            .over {
+              cursor: default;
+            }
+            &>div {
+              margin-bottom: 25px;
+            }
+            .text-singer{
+              display: inline-block;
+              color: rgba(128, 128, 128, 0.76);
+              &:hover {
+                color: rgba(0, 0, 0, 0.616);
+                cursor: pointer;
+              }
+            }
+          }
+        }
+        &>div {
+          height: 80px;
+          width: 29%;
+          margin: 20px 5px 10px 15px;
+          border-radius: 5px;
+          &:hover {
+            background: rgba(128, 128, 128, 0.301);
+          }
+        }
+      }
+    }
+    .content4{
+      width: 100%;
+      margin-top: 30px;
+      #hr{
+      border-bottom: 2px solid rgba(202, 26, 26, 0.788);
+      }
+      .contentTitle{
+        width: 95%;
+        margin-left: 30px;
+        img {
+          width: 20px;
+        }
+        &>div {
+          display: inline-block;
+          padding: 10px 5px 10px 5px;
+        }
+        .big{
+          font-size: 25px;
+          font-weight: 300;
+        }
+      }
+      .contentMain {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        &>div {
+          width: 45%;
+          margin: 20px 20px 40px 20px;
+        }
+        .MainList {
+          .MainList-img{
+            width: 500px;
+            height: 281px;
+            img {
+              max-width: 100%;
+              max-height: 100%;
+              width: 100%;
+              height: 100%;
+              border-radius: 5px;
+              cursor: pointer;
+            }
+          }
+          .MainList-text {
+            .name {
+              // background: blanchedalmond;
+              display: inline-block;
+              color: $b-second;
+            }
+            .singerName {
+              width: 500px;
+              overflow: hidden;
+              text-overflow:ellipsis;
+              white-space: nowrap;
+              color: $b-first;
+            }
+            &>div{
+              margin-top: 15px;
+              font-size: 19px;
+              cursor: pointer;
+              
+            &:hover {
+              color: #000000;
+            }
+          }
+          }
+          
+        }
+      }
+    }
+  }
 }
 </style>

@@ -191,6 +191,7 @@ export default {
         }
       }
       this.name.unshift(this.mv.artists[0].name);
+      console.log('name:',this.name);
     },
     getTime(time) {
       let second = Math.floor(time / 1000);

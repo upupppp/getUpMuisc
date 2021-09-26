@@ -16,6 +16,8 @@ export default new Vuex.Store({
     picUrl:null,
     singname:null,
     imgUrl:null,
+    loginStatus:0,
+    status:false,
   },
   // 对数据获取之前的再次编译，可以理解为state的计算属性。我们在组件中使用 $sotre.getters.fun()
   getters: {
