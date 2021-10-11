@@ -48,16 +48,20 @@
       <div class="singList">
         <div class="creator">
           <p class="title" v-if="mine">我创建的歌单<span>({{creator.length}})</span></p>
-          <p class="title" v-if="!mine">我创建的歌单<span>({{creator.length}})</span></p>
+          <p class="title" v-if="!mine">{{profile.nickname}}创建的歌单<span>({{creator.length}})</span></p>
           <div class="playList">
             <div v-for="(item,index) in creator" :key="index">
               <div class="img">
+                <router-link :to="{path: '/singList', query: {id:item.id}}">
                 <el-avatar shape="square" :size="250" :src="item.coverImgUrl"></el-avatar>
+                </router-link>
               </div>
               <div class="text">
+                <router-link :to="{path: '/singList', query: {id:item.id}}">
                 <p v-if="mine&&index == 0">{{item.name}}</p>
                 <p v-if="index > 0">{{item.name}}</p>
                 <p v-if="!mine">{{item.name}}</p>
+                </router-link>
                 <p class="count">{{item.trackCount}}首</p>
               </div>
             </div>
@@ -65,16 +69,20 @@
         </div>
         <div class="collection">
           <p class="title" v-if="mine">我收藏的歌单<span>({{collection.length}})</span></p>
-          <p class="title" v-if="!mine">我收藏的歌单<span>({{collection.length}})</span></p>
+          <p class="title" v-if="!mine">{{profile.nickname}}收藏的歌单<span>({{collection.length}})</span></p>
           <div class="playList">
             <div v-for="(item,index) in collection" :key="index">
               <div class="img">
+                <router-link :to="{path: '/singList', query: {id:item.id}}">
                 <el-avatar shape="square" :size="250" :src="item.coverImgUrl"></el-avatar>
+                </router-link>
               </div>
               <div class="text">
+                <router-link :to="{path: '/singList', query: {id:item.id}}">
                 <p v-if="mine&&index == 0">{{item.name}}</p>
                 <p v-if="index > 0">{{item.name}}</p>
                 <p v-if="!mine">{{item.name}}</p>
+                </router-link>
                 <p class="count">{{item.trackCount}}首</p>
               </div>
             </div>
@@ -138,6 +146,7 @@
 <style lang="scss" scoped>
   @import '../assets/styles/index';
   .info {
+    user-select: none;
     height: 1500px;
     @extend %main;
     // background: brown;
@@ -250,7 +259,7 @@
           .playList {
             display: flex;
             flex-wrap: wrap;
-            justify-content: start;
+            justify-content: flex-start;
             &>div {
               margin-top: 20px;
               width: 23%;

@@ -36,14 +36,14 @@
             <div class="text">
               评论<span>({{comment.total}})</span>
             </div>
-            <textarea name="" id="" v-model="text">
+            <textarea name="" id="" v-model="text" @keydown.enter="sendComment()">
             </textarea>
             <span class="textCount">{{140-textSum}}</span>
-            <div class="comment-btn">
+            <div class="comment-btn" @click="sendComment()">
               评论
             </div>
           </div>
-          <div class="hotComment" v-if="comment.hotComments !== undefined&& !comment.hotComments.length > 0">
+          <div class="hotComment" v-if="comment.hotComments !== undefined&& comment.hotComments.length > 0">
             <div class="text">
               精彩评论
             </div>
@@ -56,6 +56,9 @@
               <div class="comment-text">
                 <div class="top">
                   <span class="nickname">{{item.user.nickname}}</span>:{{item.content}}
+                  <div class="replied" v-if="item.beReplied.length > 0">
+                    <p>@{{item.beReplied[0].user.nickname}}:<span>{{item.beReplied[0].content}}</span> </p>
+                  </div>
                 </div>
                 <div class="bottom">
                   <div>
@@ -88,6 +91,9 @@
               <div class="comment-text">
                 <div class="top">
                   <span class="nickname">{{item.user.nickname}}</span>:{{item.content}}
+                  <div class="replied" v-if="item.beReplied.length > 0">
+                    <p>@{{item.beReplied[0].user.nickname}}:<span>{{item.beReplied[0].content}}</span> </p>
+                  </div>
                 </div>
                 <div class="bottom">
                   <div>
@@ -178,6 +184,7 @@ export default {
     this.item = this.$route.query.item;
     this.id = this.$route.query.id;
     console.log('item',this.item);
+    console.log('id:',this.id);
     window.addEventListener('scroll',this.pipStatus);
   },
   methods: {
@@ -261,7 +268,17 @@ export default {
         this.offsetChange = 0;
       }
     },
-    
+    sendComment() {
+      let time = new Date().getTime();
+      axios.get('https://autumnfish.cn/comment?t=1&type=1&id='+ this.id +'&content='+ this.text +'&timestamp='+ time +'').then((res)=>{
+          console.log('url111:',res);
+          // this.url = res.data.data.url;
+          
+    });
+    console.log(this.text);
+    console.log(this.id);
+    this.text = "";
+    }
   },
   // 监听函数watch:里面方法的名字必须所监听的属性,当被监听的属性的值发生变化时,触发方法
   watch:{
@@ -499,6 +516,20 @@ export default {
                 .top {
                   .nickname {
                     color: #40a0ff;
+                    cursor: pointer;
+                  }
+                  .replied {
+                    background-color: rgba(128, 128, 128, 0.089);
+                    padding: 5px 10px 10px 10px;
+                    border-radius: 5px;
+                    p {
+                      color: #40a0ff;
+                      cursor: pointer;
+                      span {
+                        color: $b-first;
+                        cursor: default;
+                      }
+                    }
                   }
                 }
                 .bottom {

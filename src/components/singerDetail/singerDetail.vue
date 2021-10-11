@@ -1,5 +1,5 @@
 <template>
-  <div class="singerDetail">
+  <div class="singerDetail" >
     <div class="detail">
       <img :src="detail.img1v1Url" v-if="detail.img1v1Url!== null" alt="">
       <div class="word">
@@ -75,6 +75,7 @@ export default {
 
 <style lang="scss" scoped>
 .singerDetail{
+  user-select: none;
   width: 60%;
   margin: 0 auto;
   margin-top: 40px;

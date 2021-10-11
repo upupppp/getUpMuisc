@@ -77,6 +77,7 @@ export default {
 <style lang="scss" scoped>
   @import '../../assets/styles/index';
   .MV {
+    user-select: none;
     .el-row {
       display: flex;
       flex-wrap:wrap;

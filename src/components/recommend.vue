@@ -14,7 +14,7 @@
         <div class="content1">
           <div class="contentTitle" id="hr">
             <div><img src="~@/assets/img/圆圈.png" alt=""></div>
-            <div class="big">热门推荐</div>
+            <div class="big" @click="re()">热门推荐</div>
           </div>
           <div class="contentMain">
             <div class="MainsList" v-for="(item,index) in personalized" :key="index">
@@ -90,16 +90,21 @@
               <div class="MainList-img">
                 <img :src="item.picUrl" alt="">
               </div>
+              </router-link>
               <div class="MainList-text">
                 <div class="singerName">
+                  <router-link :to="{path: '/mvSon', query: {id:item.id}}">
                   {{item.name}}
+                  </router-link>
                 </div>
                 <div class="name grey" v-for="(item,index) in item.artists" :key="index">
+                  <router-link :to="{path: '/singerDetail', query: {id:item.id}}">
                   {{index == 0?item.name: '/' + item.name}}
+                  </router-link>
                   <!-- {{item.artistName}} -->
                 </div>
               </div>
-              </router-link>
+              
             </div>
           </div>
         </div>
@@ -127,6 +132,16 @@ export default {
         
   },
   methods: {
+    // 测试是否登录
+    re() {
+      let cookie = localStorage.getItem('cookie');
+      console.log(cookie);
+      let time = new Date().getTime();
+      axios.get('https://autumnfish.cn/login/refresh?timestamp='+ time +'&cookie='+ cookie +'').then((res)=>{
+          console.log('刷新:',res)
+        // this.keyImg = res.data.data.qrimg;
+        });
+      },
     playMusic(song,id) {
       let url = null;
       axios.get('https://autumnfish.cn/song/url?id='+id).then((res)=>{
@@ -168,6 +183,7 @@ export default {
     });
     axios.get('https://autumnfish.cn/personalized/mv').then((res)=>{
       this.mvList = res.data.result;
+      console.log(this.mvList);
     });
     axios.get('https://autumnfish.cn/banner').then((res) => {
                 // console.log(res);

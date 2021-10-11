@@ -11,6 +11,9 @@ $bd-third:#EBEEF5;
 $bd-fourth:#F2F6FC;
 
 // 取消点击时出现的边框
+div,p,span,h1 {
+  user-select: none;
+}
 img {
   border-radius: 5px;
 }

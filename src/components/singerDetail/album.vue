@@ -1,5 +1,5 @@
 <template>
-  <div class="Album" >
+  <div class="Album">
     <div class="top50" >
       <img src="../../assets/img/top50.png" alt="">
       <div class="album">
@@ -196,6 +196,7 @@ export default {
   @import '../../assets/styles/index';
 
   .Album {
+    user-select: none;
     @extend %singerDetailC;
     .top50 {
       position: relative;
@@ -282,6 +283,7 @@ export default {
             position: relative;
             top: -30px;
             left: 30px;
+            user-select: none;
             // padding-bottom: 100px;
           }
           .songs {

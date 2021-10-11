@@ -112,6 +112,7 @@ export default {
           localStorage.removeItem("info");
           localStorage.removeItem("loginFlag");
           _this.isLogin = 0;
+          this.$store.state.loginStatus = 0;
       });
       axios.get('https://autumnfish.cn/login/status').then((res)=>{
           console.log('loginStatus:',res);

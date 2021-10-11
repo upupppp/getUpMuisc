@@ -3,9 +3,27 @@
     <div class="main">
       <div class="el-icon-close" @click="loginClose()">
       </div>
+      <!-- 二维码过期 -->
+      <div class="content" v-if="this.$store.state.loginStatus == -1">
+        <div class="title" @click="getTest()">
+          <p> 扫码登录</p>
+        </div>
+        <div class="keyPic"  >
+          <img :src="keyImg" :class="{bgBlack:this.$store.state.loginStatus == -1}" alt="">
+          <div class="text">
+            <p class="t1">二维码已失效</p>
+            <p class="t2" @click="resetKeyImg()">点击刷新</p>
+          </div>
+          
+        </div>
+        <p>
+          使用网易云音乐APP扫码登录
+
+        </p>
+      </div>
       <!-- 未登录状态 -->
       <div class="content" v-if="this.$store.state.loginStatus == 0">
-        <div class="title" @click="getTest()">
+        <div class="title">
           <p> 扫码登录</p>
         </div>
         <div class="keyPic">
@@ -50,6 +68,7 @@
               cookie:String,
               id:Number,
               info:Object,
+              keyFlag:true,
             }
         },
         created() {
@@ -60,17 +79,56 @@
             // 0关闭 1打开 2那么content内容改变 关闭
             this.$store.state.status = false;
           },
-          getTest() {
-            this.$store.state.loginStatus = 1;
-          },
           emitToParent() {
             this.$emit('child-event',this.info,1);
+          },
+          resetKeyImg() {
+            this.keyFlag = false;
+            let _this = this;
+            let time = new Date().getTime();
+            setInterval(function() {
+            time = new Date().getTime();
+            // console.log(time);
+            },1000)
+            axios.get('https://autumnfish.cn/login/qr/key?timestamp='+ time +'').then((res)=>{
+              _this.key = res.data.data.unikey;
+              axios.get('https://autumnfish.cn/login/qr/create?key='+ _this.key +'&qrimg='+ this.key +'&timestamp='+ time +'').then((res)=>{
+              _this.keyImg = res.data.data.qrimg;
+            });
+            this.$store.state.loginStatus = 0;
+            let timer = setInterval(function() {
+           if(_this.code != 803&&_this.$store.state.status==true) {
+             axios.get('https://autumnfish.cn/login/qr/check?key='+ _this.key +'&qrimg='+ this.key +'&timestamp='+ time +'').then((res)=>{
+                console.log('status:',res);
+                _this.code = res.data.code;
+                _this.cookie = res.data.cookie;
+                console.log(res.data.cookie);
+                // _this.code = 800;
+                console.log(_this.code);
+                console.log(_this.status);
+              })
+           }
+           if(_this.code == 803) {
+             axios.get('https://autumnfish.cn/user/account?cookie='+ _this.cookie +'').then((res)=>{
+                console.log('用户:',res)
+                console.log(time);
+                this.id = res.data.account.id;
+              // this.keyImg = res.data.data.qrimg;
+              });
+           }
+          if(_this.$store.state.loginStatus == 2) {
+            clearInterval(timer);
+            console.log('定时器清除成功');
+          }
+          },1000)
+          });
           }
         },
         watch: {
           code() {
             let _this = this;
             if(this.code == 803) {
+              let time = new Date().getTime();
               this.$store.state.loginStatus = 2;
               console.log('_this.status',this.$store.state.loginStatus);
               this.codeFlag = false;
@@ -84,6 +142,10 @@
 
               axios.get('https://autumnfish.cn/user/subcount?cookie='+ _this.cookie +'').then((res)=>{
                 console.log('用户:',res);
+              // this.keyImg = res.data.data.qrimg;
+              });
+              axios.get('https://autumnfish.cn/login/refresh?timestamp='+ time +'&cookie='+ _this.cookie +'').then((res)=>{
+                console.log('刷新:',res)
               // this.keyImg = res.data.data.qrimg;
               });
               _this.loginClose();
@@ -105,25 +167,21 @@
           let time = new Date().getTime();
           setInterval(function() {
             time = new Date().getTime();
-            // console.log(time);
           },1000)
           axios.get('https://autumnfish.cn/login/qr/key').then((res)=>{
-            // this.personalized = res.data.result;
-            this.key = res.data.data.unikey;
+            _this.key = res.data.data.unikey;
             axios.get('https://autumnfish.cn/login/qr/create?key='+ _this.key +'&qrimg='+ this.key +'').then((res)=>{
-            // this.personalized = res.data.result;
-              this.keyImg = res.data.data.qrimg;
+              _this.keyImg = res.data.data.qrimg;
             });
           });
           
          let timer = setInterval(function() {
-           if(_this.code != 803&&_this.$store.state.status==true) {
+           if(_this.code != 803&&_this.$store.state.status == true) {
              axios.get('https://autumnfish.cn/login/qr/check?key='+ _this.key +'&qrimg='+ this.key +'&timestamp='+ time +'').then((res)=>{
                 console.log('status:',res);
                 _this.code = res.data.code;
                 _this.cookie = res.data.cookie;
                 console.log(res.data.cookie);
-                // _this.code = 800;
                 console.log(_this.code);
                 console.log(_this.status);
               })
@@ -131,39 +189,17 @@
            if(_this.code == 803) {
              axios.get('https://autumnfish.cn/login/refresh?timestamp='+ time +'&cookie='+ _this.cookie +'').then((res)=>{
                 console.log('刷新:',res)
-              // this.keyImg = res.data.data.qrimg;
               });
              axios.get('https://autumnfish.cn/user/account?cookie='+ _this.cookie +'').then((res)=>{
-                console.log('用户1:',res)
-                console.log(time);
                 this.id = res.data.account.id;
-              // this.keyImg = res.data.data.qrimg;
-              });
-              axios.get('https://autumnfish.cn/user/subcount?cookie='+ _this.cookie +'').then((res)=>{
-                console.log('账号1:',res)
-              // this.keyImg = res.data.data.qrimg;
-              });
-              axios.get('https://autumnfish.cn/login/status?cookie='+ _this.cookie +'').then((res)=>{
-                console.log('状态:',res)
-              // this.keyImg = res.data.data.qrimg;
-              });
-              axios.get('https://autumnfish.cn/login/status?cookie='+ _this.cookie +'').then((res)=>{
-                console.log('状态:',res)
-              // this.keyImg = res.data.data.qrimg;
               });
            }
               
-              if(_this.$store.state.loginStatus == 2||_this.code == 800) {
-                clearInterval(timer);
-                console.log('定时器清除成功');
-              }
+          if(_this.$store.state.loginStatus == 2||_this.code == 800||!_this.keyFlag) {
+            clearInterval(timer);
+            console.log('定时器清除成功');
+          }
           },1000)
-        // if(this.code == 802) {
-        //         clearInterval(timer);
-        //         console.log('定时器清除成功');
-        // }
-        
-        
         }
     }
 </script>
@@ -171,7 +207,7 @@
 <style lang="scss" scoped>
 @import '../assets/styles/index';
 .loginTap {
-  
+  user-select: none;
   .main {
     width: 450px;
     height: 600px;
@@ -209,6 +245,32 @@
         margin-bottom: 15px;
         img {
           width: 250px;
+          background-color: black;
+        }
+        .bgBlack {
+          // opacity: 0.1;
+          background: black;
+          // z-index: 999;
+          filter:brightness(13%);
+        }
+        .text {
+          position: relative;
+          top: -150px;
+          font-size: 20px;
+          color: white;
+          font-weight: 700;
+          &>p {
+            margin-bottom: 20px;
+          }
+          .t2 {
+            background-color: rgb(46, 144, 224);
+            padding: 5px 10px 5px 10px;
+            width: 100px;
+            position: relative;
+            left: 120px;
+            cursor: pointer;
+            border-radius: 5px;
+          }
         }
         
       }

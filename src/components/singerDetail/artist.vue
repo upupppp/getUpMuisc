@@ -42,6 +42,7 @@ export default {
 <style lang="scss" scoped>
   @import '../../assets/styles/index';
   .artist {
+    user-select: none;
     @extend %singerDetailSon;
     // height: 2000px;
     position: absolute;

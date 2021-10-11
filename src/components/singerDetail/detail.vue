@@ -86,6 +86,7 @@ export default {
 <style lang="scss" scoped>
   @import '../../assets/styles/index';
   .detail {
+    user-select: none;
     @extend %singerDetailSon;
     position: absolute;
     left: 0px;

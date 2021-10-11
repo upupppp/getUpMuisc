@@ -18,7 +18,7 @@
                 <img :src="playlist.creator.avatarUrl" alt="">
               </div>
               <div class="author-nickname">
-                <p class="text-blue"><router-link :to="{path: '/infoMsg', query: {id:playlist.creator.userId,mine:false}}" class="text-blue">{{playlist.creator.nickname}}</router-link></p>
+                <p class="text-blue"><router-link :to="{path: '/infoMsg', query: {id:playlist.creator.userId}}" class="text-blue">{{playlist.creator.nickname}}</router-link></p>
                 <p class="font-color">{{createdTime}}创建</p>
               </div>
             </div>
@@ -142,11 +142,8 @@ export default {
     },
   },
   mounted(){
-    axios.get('https://autumnfish.cn/playlist/detail/dynamic?id=' +this.id).then((res)=>{
-          // console.log('dynamic:',res);
-    });
     axios.get('https://autumnfish.cn/playlist/detail?id=' +this.id).then((res)=>{
-          // console.log('detail:',res);
+          console.log('detail:',res);
           this.playlist = res.data.playlist;
           this.privileges = res.data.privileges;
           let _this = this;
@@ -157,7 +154,6 @@ export default {
           }
           this.getId();
     });
-    
     }
 }
 </script>
@@ -166,7 +162,7 @@ export default {
 @import '../assets/styles/index';
 .singList{
   width: 61%;
-  height: 1500px;
+  // height: 1500px;
   /* background: red; */
   margin: 0 auto;
   border-left: 1px solid rgba(0, 0, 0, 0.178);
@@ -299,7 +295,7 @@ export default {
   top: 100px;
   left: 40px;
   /* background: rgba(128, 128, 128, 0.082); */
-  height: 2000px;
+  // height: 2000px;
 }
 .singList-top>div{
   margin: 15px 20px;
