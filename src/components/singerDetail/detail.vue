@@ -47,19 +47,11 @@ export default {
     this.id = this.$route.query.id;
   },
   computed: {
-    // getContent() {
-    //   let arr = this.desc[2].txt.split(/[\n]/);
-    //   return arr;
-    // },
-    // getContent1() {
-    //   let arr = this.desc[1].txt.split(/[\n]/);
-    //   return arr;
-    // }
     getContent() {
       for(let i = 0; i < this.desc.length; i++) {
         this.arr.push(this.desc[i].txt.split(/[\n]/));
       }
-      console.log(this.arr);
+      // console.log(this.arr);
       return this.arr;
     }
   },
@@ -70,11 +62,11 @@ export default {
     // },
   },
   mounted(){
-    axios.get('https://autumnfish.cn/artist/detail?id='+ this.id +'').then((res)=>{
+    axios.get('/artist/detail?id='+ this.id +'').then((res)=>{
           console.log('details:',res);
           this.details = res.data.data.artist;
     });
-    axios.get('https://autumnfish.cn/artist/desc?id='+ this.id +'').then((res)=>{
+    axios.get('/artist/desc?id='+ this.id +'').then((res)=>{
           console.log('dese:',res);
           this.desc = res.data.introduction;
     });

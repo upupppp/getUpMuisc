@@ -59,12 +59,12 @@ li {
 }
 
 ::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+    width: 0px;
+    height: 0px;
 }
 
 ::-webkit-scrollbar-track-piece {
-    background-color: rgba(0, 0, 0, 0.2);
+    /* background-color: rgba(0, 0, 0, 0.2); */
     -webkit-border-radius: 6px;
 }
 

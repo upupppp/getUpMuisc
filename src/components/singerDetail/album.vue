@@ -4,7 +4,7 @@
       <img src="../../assets/img/top50.png" alt="">
       <div class="album">
         <h1>热门50首</h1>
-        <div v-for="(item,index) in top50" :key="item.index" @dblclick="playMusic(item.id,item.al.picUrl,item.name,item.ar[0].name)" v-show="topFlag" :class="{odd:index%2 == 0}">
+        <div v-for="(item,index) in top50" :key="item.index" @dblclick="playMusic(item.id,index,item)" v-show="topFlag" :class="{odd:index%2 == 0}">
           <div class="item1">
             {{index + 1 >= 10?index + 1:'0' + (index + 1)}}
           </div>
@@ -19,7 +19,7 @@
 
           </div>
         </div>
-        <div v-for="(item,index) in getTop10" @dblclick="playMusic(item.id,item.al.picUrl,item.name,item.ar[0].name)" :key="index" v-show="!topFlag" :class="{odd:index%2 == 0}">
+        <div v-for="(item,index) in getTop10" @dblclick="playMusic(item.id,index,item)" :key="index" v-show="!topFlag" :class="{odd:index%2 == 0}">
           <div class="item1">
             {{10 > (index + 1)? '0' + (index+1):index+1}}
           </div>
@@ -49,7 +49,7 @@
           <div class="h1">
             {{item.name}}
           </div>
-          <div class="songs" v-for="(item,index) in gotTop10[index]" @dblclick="playMusic(item.id,item.al.picUrl,item.name,item.ar[0].name)" :key="index" :class="{odd:index%2 == 0}">
+          <div class="songs" v-for="(item,index) in gotTop10[index]" @dblclick="playMusic(item.id,index,item)" :key="index" :class="{odd:index%2 == 0}">
             <div class="item1">{{index + 1 >= 10?index + 1:'0' + (index + 1)}}</div>
             <div class="item2">{{item.name}}</div>
             <div class="item3">{{getTime(item.dt)}}</div>
@@ -82,6 +82,10 @@ export default {
   },
   created() {
     this.id = this.$route.query.id;
+    addEventListener('click', this.click, false)
+  },
+  beforeDestroy() {
+    removeEventListener('click', this.click, false)
   },
   computed: {
     getTop10() {
@@ -122,7 +126,7 @@ export default {
         }, delay)    
     },
     ms() {
-      axios.get('https://autumnfish.cn/artist/album?id='+ this.id+'&limit='+ this.limit * this.page +'').then((res)=>{
+      axios.get('/artist/album?id='+ this.id+'&limit='+ this.limit * this.page +'').then((res)=>{
           this.album = res.data.hotAlbums;
           // this.artist = res.data.artist;
           // console.log('album:',this.album);
@@ -150,30 +154,36 @@ export default {
       this.topFlag = !this.topFlag; 
     },
     getAlbum(id) {
-        axios.get('https://autumnfish.cn/album?id='+id+'').then((res)=>{
+        axios.get('/album?id='+id+'').then((res)=>{
           this.songs.push(res.data.songs);
           // console.log('ada',this.songs);
       });
     },
-    playMusic(id,pic,name,singerName) {
+    playMusic(id,index,item) {
+      console.log(item);
       let url = null;
-      axios.get('https://autumnfish.cn/song/url?id='+id).then((res)=>{
-            url = res.data.data[0].url;
-            this.$store.state.url = url;
-            this.$store.state.picUrl = pic;
-            this.$store.state.singname = name;
-            this.$store.state.singer = singerName;
-            this.$store.state.musicPlay = true;
-            this.$store.state.flag = true;
+      axios.get('/song/url?id='+id+'&cookie='+this.$store.state.cookie+'').then((res)=>{
+        url = res.data.data[0].url;
+        this.$store.state.url = url;
+        this.$store.state.songIndex = index;
+        if(this.$store.state.songList !== this.top50) {
+          this.$store.state.songList = this.top50;
+        }
+        this.$store.commit('musicPlay',
+        {
+          item,
+          url:url,
+          index,
+          type:1
+        })
       });
-    }
+    },
   },
   mounted(){
-    axios.get('https://autumnfish.cn/artist/album?id='+ this.id +'&limit='+ this.limit+'').then((res)=>{
-          
+    axios.get('/artist/album?id='+ this.id +'&limit='+ this.limit+'').then((res)=>{
           this.album = res.data.hotAlbums;
           // this.artist = res.data.artist;
-          // console.log('album:',this.album);
+          console.log('album:',this.album);
           for (let index in this.album) {
             this.getAlbum(this.album[index].id);
             // console.log(index);
@@ -184,7 +194,7 @@ export default {
           window.addEventListener('scroll',this.handleScroll);
           // window.addEventListener('scroll',this.handleScroll);
     });
-    axios.get('https://autumnfish.cn/artist/top/song?id='+ this.id +'').then((res)=>{
+    axios.get('/artist/top/song?id='+ this.id +'').then((res)=>{
           
           this.top50 = res.data.songs;
           // console.log('top50:',this.top50);
@@ -196,6 +206,7 @@ export default {
   @import '../../assets/styles/index';
 
   .Album {
+    cursor: default;
     user-select: none;
     @extend %singerDetailC;
     .top50 {

@@ -20,6 +20,7 @@ export default {
       type:Number
     }, 
     initial: {
+  
     }
   },
   data(){
@@ -29,10 +30,22 @@ export default {
       page:1,
       onPullDown:true,
       loading:true,
+      cancel:null,
+      timer:null,
     }
   },
   created() {
-    // console.log(this.initial);
+    // console.log(1111);
+    this.timer = setTimeout(()=> {
+        this.ms();
+      },500)
+  },
+  beforeDestroy() {
+    removeEventListener('click', this.ms, false)
+    removeEventListener('click', this.ms1, false)
+    removeEventListener('scroll',this.handleScroll,false)
+    // 在规定时间内点击多次则取消之前的事件,不然取消请求
+    this.cancel==null?clearTimeout(this.timer):this.cancel('服务器快承受不了了');
   },
   methods: {
     handleScroll() {
@@ -46,6 +59,7 @@ export default {
       if (scrollTop + windowHeight == scrollHeight && this.onPullDown == true && this.page != 3) {
         let page = this.page + 1;
         this.debounce(page, 50);
+        // console.log(1);
       }
     },
     debounce(args, delay) {
@@ -58,33 +72,57 @@ export default {
           _this.page = page;
           _this.ms();
           // console.log('args:',page)
-        }, delay)    
+        }, delay)
+      // console.log(22);
+      //   this.page = args  
+      //   this.ms();
     },
+    // ms() {
+    //   axios.get('/artist/list?limit='+ this.page * 30 +'&type='+ this.type +'&area='+ this.area +'&initial='+ this.initial +'&param=183y183').then((res)=>{
+    //       // console.log('Slist:',res);
+    //       this.artists = res.data.artists;
+    //       setTimeout(()=>{
+    //          this.loading = false;
+    //       },0)
+    // });
+    // },
     ms() {
-      axios.get('https://autumnfish.cn/artist/list?&limit='+ this.page * 30 +'&type='+ this.type +'&area='+ this.area +'&initial='+ this.initial +'').then((res)=>{
-          // console.log('Slist:',res);
-          this.artists = res.data.artists;
-    });
-    }
+      let CancelToken = axios.CancelToken
+      let self = this
+      axios({
+        url:'/artist/list',
+        params:{
+          limit:this.page * 30,
+          type:self.type,
+          area:self.area,
+          initial:self.initial,
+          param:'183y183',
+        },
+        cancelToken: new CancelToken(function executor(c) {
+            self.cancel = c
+            // console.log(c)
+            // 这个参数 c 就是CancelToken构造函数里面自带的取消请求的函数，这里把该函数当参数用
+          })
+      }).then(res=>{
+        // console.log('Slist1:',res);
+        self.artists = res.data.artists;
+        setTimeout(()=>{
+          this.loading = false;
+        },0)
+      })
+    },
+    // ms2() {
+    //   axios.get('/artist/list?offset='+ this.page * 30 +'&type='+ this.type +'&area='+ this.area +'&initial='+ this.initial +'&param=183y183').then((res)=>{
+    //       // console.log('offset:',res);
+    //     //   this.artists = res.data.artists;
+    //     //   setTimeout(()=>{
+    //     //      this.loading = false;
+    //     //   },700)
+    //     // localStorage.setItem('artists',JSON.stringify(this.artists));
+    //   });
+    // }
   },
   mounted(){
-    axios.get('https://autumnfish.cn/artist/list?limit=30&type='+ this.type +'&area='+ this.area +'&initial='+ this.initial +'').then((res)=>{
-          console.log('Slist:',res);
-          this.artists = res.data.artists;
-          setTimeout(()=>{
-             this.loading = false;
-          },700)
-          
-    });
-    // this.$nextTick(() => {
-    //   if (document.readyState === 'complete') {
-    //         this.loading = false;
-    //         console.log(111)
-    //     }
-    //   // setTimeout(()=>{
-    //   //       this.loading = false;
-    //   //     },700)
-    //   });
     window.addEventListener('scroll',this.handleScroll);
     }
 }
@@ -93,6 +131,7 @@ export default {
 <style>
 .singer-bottom{
   /* height: 700px; */
+  width: 1200px;
   display: flex;
   justify-content: space-around;
   flex-wrap: wrap;
@@ -108,6 +147,8 @@ export default {
 .singer-bottom>div img{
   max-width: 100%;
   max-height: 100%;
+  width: 183px;
+  height: 183px;
   border-radius: 5px;
 }
 </style>

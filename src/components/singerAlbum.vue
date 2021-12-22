@@ -1,29 +1,20 @@
 <template>
-  <div class="singList">
+  <div class="singer-album">
     <div class="singList-header">
         <div class="singList-pic">
-            <img :src="playlist.coverImgUrl">
+            <img :src="album.picUrl">
         </div>
         <div class="singList-text">
             <div class="singList-title">
                 <div class="slogo">
-                    歌单
+                  专辑
                 </div>
                 <div class="title">
-                    {{playlist.name}}
+                    {{album.name}}
                 </div>
             </div>
-            <div class="author-detail" v-if="playlist.creator" >
-              <div class="author-pic" >
-                <img :src="playlist.creator.avatarUrl" alt="">
-              </div>
-              <div class="author-nickname">
-                <p class="text-blue"><router-link :to="{path: '/infoMsg', query: {id:playlist.creator.userId}}" class="text-blue">{{playlist.creator.nickname}}</router-link></p>
-                <p class="font-color">{{createdTime}}创建</p>
-              </div>
-            </div>
             <div class="singList-function">
-              <div class="function1 bg-red white" @click="playMusic(song[0].id,0,song[0])">
+              <div class="function1 bg-red white">
                 播放全部
               </div>
               <div class="function2">
@@ -37,25 +28,24 @@
               </div>
             </div>
             <div class="singList-detail">
-               <div class="inline">标签: 
-                 <p class="text-blue" v-for="(item,index) in playlist.tags" :key="index">
-                   {{item}}
+               <div class="inline">歌手: 
+                 <p class="text-blue" v-for="(item,index) in album.artists" :key="index">
+                   <router-link :to="{path:'/singerDetail',query:{id:item.id}}">
+                    {{ index >= 1 ? "/" + item.name : item.name }}
+                   </router-link>
                  </p>
                 </div>
-               <div>歌曲: {{playlist.trackCount}} 播放: {{playlist.playCount}}</div>
-               <div :class="{over:flag == true}" class="description" ref="description">简介:{{playlist.description}}</div>
-               <div class="over-logo">
-                 <span v-if="flag == true" @click="change" class="iconfont icon-sanjiaoxing"></span>
-                 <span v-if="flag != true" @click="change" class="iconfont icon-sanjiaoxing1"></span>
-               </div>
+               <div>
+                 时间：{{createdTime}}
+                </div>
             </div>
         </div>
     </div>
     <div class="singList-content" ref="content">
       <div class="singList-top">
         <div :class="{current:currentIndex == 1}" @click="current(1)">歌曲列表</div>
-        <div :class="{current:currentIndex == 2}" @click="current(2)">评论{{playlist.commentCount}}</div>
-        <div :class="{current:currentIndex == 3}" @click="current(3)">收藏者</div>
+        <div :class="{current:currentIndex == 2}" @click="current(2)">评论({{commentCount}})</div>
+        <div :class="{current:currentIndex == 3}" @click="current(3)">专辑详情</div>
       </div>
       <div class="singList-table">
         <div class="table-th">
@@ -64,11 +54,7 @@
             <div class="tags3">专辑</div>
             <div class="tags4">时长</div>
           </div>
-          <div class="table-tr" 
-          :class="{odd:index%2 == 0,currentSong:$store.state.musicID == item.id}" 
-          @dblclick="playMusic(item.id,index,item)" 
-          v-for="(item,index) in song" 
-          :key="index">
+          <div class="table-tr" :class="{odd:index%2 == 0}" @dblclick="playMusic(item.id,item.al.picUrl,item.name,item.ar[0].name)" v-for="(item,index) in songs" :key="index">
             <div class="tags0">{{index+1>=10?index + 1:'0' + (index + 1)}}</div>
             <div class="tags1">{{item.name}}</div>
             <div class="tags2">{{item.ar[0].name}}</div>
@@ -89,27 +75,20 @@ export default {
     return{
         id:null,
         pic:null,
-        playlist:Object,
-        privileges:[],
         createdTime:null,
         flag:true,
         currentIndex:1,
         songId:[],
         song:[],
-
+        album:[],
+        commentCount:Number,
+        songs:[]
     }
   },
   computed:{
   },
   created() {
        this.id = this.$route.query.id;
-       document.documentElement.scrollTop = 0;
-  },
-  beforeDestroy() {
-    removeEventListener('click', this.getId, false)
-    removeEventListener('click', this.getData, false)
-    removeEventListener('click', this.getTime, false)
-    // console.log('再销毁');
   },
   methods: {
     change() {
@@ -125,47 +104,37 @@ export default {
       this.currentIndex = index;
     },
     getId() {
-      axios.get('http://localhost:3000/song/url?id='+this.songId).then((res)=>{
-          console.log('oth:',res);
+      axios.get('/song/url?id='+this.songId).then((res)=>{
+          // console.log('oth:',res);
       });
-      axios.get('http://localhost:3000/song/detail?ids='+this.songId).then((res)=>{
+      axios.get('/song/detail?ids='+this.songId).then((res)=>{
         this.song = res.data.songs;
-          console.log('song:',res);
+          // console.log('song:',res);
       });
     },
-    getData() {
-      let time = new Date().getTime();
-      let cookie = localStorage.getItem('cookie');
-      axios.get('http://localhost:3000/playlist/detail?id='+ this.id +'&timestamp='+ time +'&cookie='+ cookie +'').then((res)=>{
-          // console.log('detail:',res);
-          this.playlist = res.data.playlist;
-          this.privileges = res.data.privileges;
-          let _this = this;
-          this.createdTime = formatDate(new Date(this.playlist.createTime), 'yyyy-MM-dd hh:mm');
-          for( let key in this.playlist.trackIds) {
-            _this.songId.push(this.playlist.trackIds[key].id);
-            // console.log(_this.songId);
-          }
-          this.getId();
-      });
-    },
-    playMusic(id,index,item) {
+    playMusic(id,pic,name,singerName) {
       let url = null;
-      axios.get('/song/url?id='+id+'&cookie='+this.$store.state.cookie+'').then((res)=>{
-        url = res.data.data[0].url;
-        this.$store.state.url = url;
-        this.$store.state.songIndex = index;
-        if(this.$store.state.songList !== this.song) {
-          this.$store.state.songList = this.song;
-        }
-        this.$store.commit('musicPlay',
-        {
-          item,
-          url:url,
-          index,
-          type:1
+
+      // 判断音乐是否可用
+      axios.get("/check/music?id=" + id).then(res => {
+        console.log('该音乐可用',res);
+        
+        // 播放音乐
+        axios.get('/song/url?id='+id).then((res)=>{
+          console.log('playsingeralbum',res);
+          url = res.data.data[0].url;
+          this.$store.state.url = url;
+          this.$store.state.picUrl = pic;
+          this.$store.state.singname = name;
+          this.$store.state.singer = singerName;
+          this.$store.state.musicPlay = true;
+          this.$store.state.flag = true;
+        }).catch(err => {
+          console.log('当前音乐播放失败',err);
         })
-      });
+      }).catch(err => {
+        alert('该音乐为付费音乐',err);
+      })
     },
     getTime(time) {
       let second = Math.floor(time / 1000);
@@ -175,14 +144,25 @@ export default {
     },
   },
   mounted(){
-    this.getData();
-    }
+    let time = new Date().getTime();
+    axios.get('http://localhost:3000/album?id=' + this.id).then(res => {
+      console.log('singeralbum',res);
+      this.album = res.data.album;
+      this.songs = res.data.songs;
+      let _this = this;
+      this.createdTime = formatDate(new Date(this.album.publishTime), 'yyyy-MM-dd');
+    })
+    axios.get('http://localhost:3000/album/detail/dynamic?id=' + this.id).then(res => {
+      // console.log('albummessage',res);
+      this.commentCount = res.data.commentCount;
+    })
+  }
 }
 </script>
 
 <style lang="scss" scoped>
 @import '../assets/styles/index';
-.singList{
+.singer-album{
   width: 61%;
   // height: 1500px;
   /* background: red; */
@@ -223,11 +203,11 @@ export default {
   height:250px;
 }
 .slogo{
-  color: #EC4141;
+  color: rgba(255, 0, 0, 0.808);
   padding: 4px;
   width: 35px;
   text-align: center;
-  border: 1px solid #EC4141;
+  border: 1px solid rgba(255, 0, 0, 0.808);
 }
 .singList-title>div{
   display: inline-block;
@@ -311,10 +291,7 @@ export default {
   cursor: pointer;
 }
 
-.currentSong {
-  color: #EC4141!important;
-  font-weight: 400 !important;
-}
+
 .singList-content{
   position: relative;
   top: 100px;
@@ -331,12 +308,14 @@ export default {
 }
 .current{
   font-weight: 600;
-  border-bottom: 3px solid #EC4141;
+  border-bottom: 3px solid red;
   color: rgba(0, 0, 0, 0.815);
 }
 
 .singList-table{
   width: 100%;
+  /* background: cadetblue; */
+  // height: 1000px;
   font-size: 18px;
   padding-bottom: 80px;
 }

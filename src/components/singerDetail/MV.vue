@@ -10,6 +10,9 @@
         </div>
         </el-col>
     </el-row>
+    <!-- <div class="white" v-if="MV.length == 0">
+      没有相关MV
+    </div> -->
   </div>
 </template>
 <script>
@@ -21,7 +24,7 @@ export default {
     return{
       id:'',
       MV:[],
-      logo:'this.src="'+ require('../../assets/img/用户方形.png')+'"',
+      // logo:'this.src="'+ require('../../assets/img/用户方形.png')+'"',
       page:1,
       onPullDown:true,
       limit:12,
@@ -31,6 +34,13 @@ export default {
   created() {
     this.id = this.$route.query.id;
     this.avatar = this.$route.query.avatar;
+    // console.log(this.id);
+    // addEventListener('click', this.click, false)
+  },
+  beforeDestroy() {
+    // removeEventListener('click', this.click, false)
+    removeEventListener('scroll',this.handleScroll,false)
+    removeEventListener('click', this.ms, false)
   },
   methods: {
     handleScroll() {
@@ -59,13 +69,13 @@ export default {
         }, delay)    
     },
     ms() {
-      axios.get('https://autumnfish.cn/artist/mv?id='+ this.id+'&limit='+ this.limit * this.page +'').then((res)=>{
+      axios.get('/artist/mv?id='+ this.id+'&limit='+ this.limit * this.page +'').then((res)=>{
           this.MV = res.data.mvs;
     });
     }
   },
   mounted(){
-    axios.get('https://autumnfish.cn/artist/mv?id='+ this.id+'&limit='+ this.limit +'').then((res)=>{
+    axios.get('/artist/mv?id='+ this.id+'&limit='+ this.limit +'').then((res)=>{
           console.log('res:',res);
           this.MV = res.data.mvs;
           window.addEventListener('scroll',this.handleScroll);
@@ -78,10 +88,22 @@ export default {
   @import '../../assets/styles/index';
   .MV {
     user-select: none;
+    // @extend %singerDetailSon;
+    position: absolute;
+    top: 70px;
+    left: 0;
+    // padding-bottom: 200px;
+    .white {
+      // position: absolute;
+      top: 200px;
+      left: 500px;
+      color: $b-second;
+      
+    }
     .el-row {
       display: flex;
       flex-wrap:wrap;
-      margin-top: 50px;
+      // margin-top: 50px;
       margin-bottom: 20px;
     &:last-child {
       margin-bottom: 20;
@@ -97,20 +119,19 @@ export default {
     min-height: 36px;
     margin-bottom: 50px;
     img {
-      width: 400px;
-      height: 225px;
+      width: 350px;
+      // background-clip: content-box;
       border-radius: 4px;
+      height: 197px;
+      background: white;
     }
     p {
       margin-top: 10px;
       color: #303133;
-      width: 400px;
+      width: 350px;
       font-size: 20px;
       @extend %overflow;
     }
-  }
-  .row-bg {
-    padding: 10px 0;
   }
   }
 </style>

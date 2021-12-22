@@ -19,10 +19,10 @@
           <div class="contentMain">
             <div class="MainsList" v-for="(item,index) in personalized" :key="index">
               <div class="MainsList-img" >
-                <router-link :to="{path: '/singList', query: {id:item.id}}"><img :src="item.picUrl" alt=""></router-link>
+                <router-link :to="{path: '/singList', query: {id:item.id}}"><img v-lazy="item.picUrl" alt=""></router-link>
                 <div class="MainsList-playCount">
                 <div class="small-logo"><img src="~@/assets/img/耳机.png" alt=""></div>
-                <div>{{item.playCount}}</div>
+                <div>{{item.playCount > 100000?Math.floor(item.playCount/10000)+'万':item.playCount}}</div>
               </div>
               </div>
               <div class="MainsList-text" >
@@ -58,10 +58,10 @@
           <div class="contentMain">
             <div class="MainsList" v-for="(item,index) in newsong" :key="index">
               <div class="main-img">
-                <img :src="item.picUrl" alt="">
+                <img v-lazy="item.picUrl" alt="">
               </div>
               <div class="playBtn">
-                <img @click="playMusic(item,item.song.id)" src="~@/assets/img/播放.png" alt="">
+                <img @click="playMusic(item.id,index,item)" src="~@/assets/img/播放.png" alt="">
               </div>
               <div class="main-text">
                 <div class="over">
@@ -99,7 +99,7 @@
                 </div>
                 <div class="name grey" v-for="(item,index) in item.artists" :key="index">
                   <router-link :to="{path: '/singerDetail', query: {id:item.id}}">
-                  {{index == 0?item.name: '/' + item.name}}
+                  {{index == 0?item.name:' / '+ item.name}}
                   </router-link>
                   <!-- {{item.artistName}} -->
                 </div>
@@ -120,76 +120,97 @@ export default {
   },
   data(){
     return{
-      personalized:[],
-      privatecontent:[],
-      newsong:[],
+      personalized:Array,
+      privatecontent:Array,
+      newsong:Array,
       mvList:Array,
-      name:[],
+      name:Array,
       banner:Object,
     }
   },
   created() {
-        
+    // removeEventListener('scroll',this.scroll,false)
+    // addEventListener('click', this.click, false)
+    window.scrollTop = 0;
+  },
+  beforeDestroy() {
+    removeEventListener('click', this.re, false)
+    removeEventListener('click', this.getData, false)
+    // console.log('再销毁');
   },
   methods: {
     // 测试是否登录
-    re() {
-      let cookie = localStorage.getItem('cookie');
-      console.log(cookie);
-      let time = new Date().getTime();
-      axios.get('https://autumnfish.cn/login/refresh?timestamp='+ time +'&cookie='+ cookie +'').then((res)=>{
-          console.log('刷新:',res)
-        // this.keyImg = res.data.data.qrimg;
-        });
-      },
-    playMusic(song,id) {
+    playMusic(id,index,item1) {
       let url = null;
-      axios.get('https://autumnfish.cn/song/url?id='+id).then((res)=>{
-            url = res.data.data[0].url;
-            this.$store.state.url = url;
-            this.$store.state.picUrl = song.picUrl;
-            this.$store.state.singer = song.song.artists[0].name;
-            this.$store.state.singname = song.name;
-            // console.log(song);
-            this.$store.state.musicPlay = true;
-            this.$store.state.flag = true;
+      // 因为播放列表渲染的数据和这个item1的数据格式不一样,创建了个和播放列表一样的item
+      let item = {
+        al:{
+          picUrl:item1.picUrl
+        },
+        name:item1.name,
+        ar:
+        [
+          {name:item1.song.artists[0].name}
+        ],
+        id:item1.id,
+        dt:item1.song.duration
+      };
+      let has = null;
+      // 如果播放列表没有这首歌就添加进数组
+      for(let i = 0; i < 1; i++) {
+        for(let j = 0; j <= this.$store.state.songList.length - 1; j++) {
+          if(this.$store.state.songList[j].id === item1.id) {
+            index = j;
+            console.log(j);
+            has = true;
+            break;
+          }
+        }
+        if(has === null) {
+          this.$store.state.songList.unshift(item);
+        }
+      }
+      this.$store.state.songIndex = index;
+      axios.get('http://localhost:3000/song/url?id='+id+'').then((res)=>{
+        url = res.data.data[0].url;
+        this.$store.state.url = url;
+        this.$store.commit('musicPlay',
+        {
+          item,
+          url:url,
+          index,
+        })
       });
     },
-    onBanner(id,type) {
-      // console.log(id);
-      // if(type == 10) {
-      //   this.$router.push({path:'/singList',query: {id:id}})
-      // }
-      // if(type == 1004) {
-      //   this.$router.push({path:'/mvSon',query: {id:id}})
-      // }
-      if(type = 1) {
-        console.log(type);
-      }
+    onBanner() {
+      // this.$store.commit('musicPlay');
     },
-  },
-  mounted(){
-    axios.get('https://autumnfish.cn/personalized?limit=8').then((res)=>{
+    getData() {
+      axios.get('/personalized?limit=8').then((res)=>{
       this.personalized = res.data.result;
           // console.log(this.personalized);
-    });
-    axios.get('https://autumnfish.cn/personalized/privatecontent').then((res)=>{
-      this.privatecontent = res.data.result;
-          // console.log(this.privatecontent);
-    });
-    axios.get('https://autumnfish.cn//personalized/newsong?limit=12').then((res)=>{
-      this.newsong = res.data.result;
-      // console.log('newsong:',this.newsong)
-    });
-    axios.get('https://autumnfish.cn/personalized/mv').then((res)=>{
-      this.mvList = res.data.result;
-      console.log(this.mvList);
-    });
-    axios.get('https://autumnfish.cn/banner').then((res) => {
-                // console.log(res);
-                this.banner = res.data.banners;
-                console.log('banner:',this.banner);
-            });
+      });
+      axios.get('/personalized/privatecontent').then((res)=>{
+        this.privatecontent = res.data.result;
+            // console.log(this.privatecontent);
+      });
+      axios.get('/personalized/newsong?limit=12').then((res)=>{
+        this.newsong = res.data.result;
+        console.log('newsong:',this.newsong)
+      });
+      axios.get('/personalized/mv').then((res)=>{
+        this.mvList = res.data.result;
+        // console.log(this.mvList);
+      });
+      axios.get('/banner').then((res) => {
+                  // console.log(res);
+        this.banner = res.data.banners;
+        // console.log('banner:',this.banner);
+      });
+    }
+  },
+  mounted(){
+    this.getData();
     }
 }
 </script>
@@ -199,7 +220,8 @@ export default {
 .recommend {
   .recommend-header{
     
-    width: 60%;
+    // width: 60%;
+    width: 1200px;
     height: 350px;
     margin: 0 auto;
     .el-carousel__item h3 {
@@ -232,6 +254,7 @@ export default {
     padding-top: 20px;
     width: 58%;
     margin: 0 auto;
+    width: 1100px;
     .content1{
       width: 100%;
       #hr{

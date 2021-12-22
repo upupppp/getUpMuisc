@@ -13,15 +13,15 @@
           <span class="level">
             Lv{{info.level}}
           </span>
-          <span class="gender-b" v-if="profile.gender == 1">
-            男
+          <span class="iconfont icon-nan1 gender-b" v-if="profile.gender == 1">
           </span>
-          <span class="gender-g" v-if="profile.gender == 2">
-            女
+          <span class="iconfont icon-nv gender-g" v-if="profile.gender == 2">
           </span>
+          <router-link :to="{path: '/changeInfo'}">
           <span class="changeMsg">
             编辑个人信息
           </span>
+          </router-link>
         </div>
         <div class="follow">
           <div class="item1">
@@ -47,7 +47,7 @@
     <div class="main">
       <div class="singList">
         <div class="creator">
-          <p class="title" v-if="mine">我创建的歌单<span>({{creator.length}})</span></p>
+          <p class="title" v-if="mine" @click="createList()">我创建的歌单<span>({{creator.length}})</span></p>
           <p class="title" v-if="!mine">{{profile.nickname}}创建的歌单<span>({{creator.length}})</span></p>
           <div class="playList">
             <div v-for="(item,index) in creator" :key="index">
@@ -60,7 +60,7 @@
                 <router-link :to="{path: '/singList', query: {id:item.id}}">
                 <p v-if="mine&&index == 0">{{item.name}}</p>
                 <p v-if="index > 0">{{item.name}}</p>
-                <p v-if="!mine">{{item.name}}</p>
+                <!-- <p v-if="!mine">{{item.name}}</p> -->
                 </router-link>
                 <p class="count">{{item.trackCount}}首</p>
               </div>
@@ -114,6 +114,10 @@
           this.cookie = localStorage.getItem('cookie');
         },
         methods: {
+          createList() {
+            this.creator.push(this.creator[4]);
+            console.log(this.creator);
+          },
           goSplit() {
             let _this = this;
             this.playlist.filter((n)=>n.creator.userId == _this.id).map((n)=>_this.creator.push(n));
@@ -124,16 +128,16 @@
         },
         mounted() {
           let _this = this;
-          axios.get('https://autumnfish.cn//user/detail?uid='+ this.id +'').then((res)=>{
+          axios.get('/user/detail?uid='+ this.id +'').then((res)=>{
             this.profile = res.data.profile;
             this.info = res.data;
             console.log('newsong:',res);
           });
-          axios.get('https://autumnfish.cn/user/subcount?cookie='+ _this.cookie +'').then((res)=>{
+          axios.get('/user/subcount?cookie='+ _this.cookie +'').then((res)=>{
             // this.profile = res.data.profile;
             console.log('subcount:',res);
           });
-          axios.get('https://autumnfish.cn/user/playlist?uid=' + this.id + '').then((res)=>{
+          axios.get('/user/playlist?uid=' + this.id + '').then((res)=>{
             // this.profile = res.data.profile;
             this.playlist = res.data.playlist;
             console.log('playlist:',res);
@@ -144,7 +148,7 @@
 </script>
 
 <style lang="scss" scoped>
-  @import '../assets/styles/index';
+  @import '../../assets/styles/index';
   .info {
     user-select: none;
     height: 1500px;
@@ -190,13 +194,18 @@
             border-radius: 15px;
           }
           .gender-b {
+            font-size: 12px;
             background: rgba(135, 207, 235, 0.459);
-            border-radius: 15px;
+            color: rgb(107, 190, 223);
+            border-radius: 50%;
+            padding: 5px;
           }
           .gender-g {
-            border-radius: 15px;
-            background: pink;
-            text-align: center;
+            font-size: 12px;
+            color: rgb(235, 79, 105);
+            padding: 5px;
+            border-radius: 50%;
+            background: rgb(255, 188, 198);
           }
           .changeMsg {
             position: relative;
@@ -260,6 +269,7 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: flex-start;
+            width: 1200px;
             &>div {
               margin-top: 20px;
               width: 23%;

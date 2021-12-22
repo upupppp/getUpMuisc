@@ -42,12 +42,15 @@ export default {
     }
   },
   created() {
-        
+    // addEventListener('click', this.click, false)
+    document.documentElement.scrollTop = 0;
+  },
+  beforeDestroy() {
+    removeEventListener('click', this.getTopList, false)
   },
   methods: {
-  },
-  mounted(){
-    axios.get('https://autumnfish.cn/toplist/detail').then((res)=>{
+    getTopList() {
+      axios.get('/toplist/detail').then((res)=>{
           // console.log('详情:',res);
           this.topMsg = res.data.list.filter( n => n.ToplistType != null);
           this.bottomMsg = res.data.list.filter( n => n.ToplistType == null);
@@ -57,6 +60,10 @@ export default {
              this.loading = false;
           },700)
     });
+    }
+  },
+  mounted(){
+    this.getTopList();
     }
 }
 </script>

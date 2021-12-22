@@ -19,6 +19,11 @@ module.exports = {
           'style-loader',
           'css-loader',
         ]
+      },{
+        loader: 'image-webpack-loader',
+        options: {
+          bypassOnDebug:true,
+        }
       }]
     },
 //其他解决方案配置

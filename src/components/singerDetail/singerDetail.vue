@@ -12,8 +12,8 @@
           <p>专辑数:{{detail.albumSize}}</p>
           <p>MV数:{{detail.mvSize}}</p>
         </div>
-        <div class="getClick">
-          收藏
+        <div class="getClick" @click="haveGood()">
+          <span class="el-icon-goods"></span> 收藏
         </div>
       </div>
     </div>
@@ -38,6 +38,18 @@
         相似歌手
         </router-link>
       </div>
+      <!-- <div :class="{currentTap:currentTap == 1}" @click="goSon(1)">
+        专辑
+      </div>
+      <div :class="{currentTap:currentTap == 2}" @click="goSon(2)">
+        MV
+      </div>
+      <div :class="{currentTap:currentTap == 3}" @click="goSon(3)">
+        歌手详情
+      </div>
+      <div :class="{currentTap:currentTap == 4}" @click="goSon(4)">
+        相似歌手
+      </div > -->
         <router-view/>
     </div>
     
@@ -53,16 +65,48 @@ export default {
       id:null,
       detail:[],
       avatar:String,
+      currentTap:1,
     }
   },
   created() {
        this.id = this.$route.query.id;
+      //  addEventListener('click', this.click, false)
+       document.documentElement.scrollTop = 0;
+  },
+  beforeDestroy() {
+    removeEventListener('click', this.click, false)
   },
   methods: {
-
+    haveGood() {
+      let timer = new Date().getTime();
+      let cookie = localStorage.getItem('cookie');
+      // let t = !followed?1:0;
+      let t = 1;
+      axios.get('/artist/sub?id='+ this.id +'&t='+ t +'&cookie='+ cookie +'&timestamp='+ timer +'').then((res)=>{
+          console.log(res);
+      });
+    },
+    // goSon(index) {
+    //   if(index == 1) {
+    //     this.$router.push({path: '/singerDetail/album', query: {id:this.id}})
+    //     this.currentTap = 1;
+    //   }
+    //   if(index == 2) {
+    //     this.$router.push({path: '/singerDetail/MV', query: {id:this.id,avatar:this.avatar}})
+    //     this.currentTap = 2;
+    //   }
+    //   if(index == 3) {
+    //     this.$router.push({path: '/singerDetail/detail', query: {id:this.id}})
+    //     this.currentTap = 3;
+    //   }
+    //   if(index == 4) {
+    //     this.$router.push({path: '/singerDetail/artist', query: {id:this.id}})
+    //     this.currentTap = 4;
+    //   }
+    // }
   },
   mounted(){
-    axios.get('https://autumnfish.cn/artists?id= '+ this.id +'').then((res)=>{
+    axios.get('/artists?id= '+ this.id +'').then((res)=>{
           console.log(res);
           this.detail = res.data.artist;
           this.avatar = res.data.artist.img1v1Url;
@@ -117,19 +161,27 @@ export default {
     }
   }
   .Smain {
-    margin-top: 50px;
+    width: 1000px;
+    margin-top: 25px;
     // position: absolute;
     // top: 430px;
     // left: 390px;
     position: relative;
     top: -150px;
-    top: -150px;
+    // top: -150px;
     &>div{
+      // cursor: pointer;
       display: inline-block;
       font-size: 20px;
       color: rgba(0, 0, 0, 0.931) !important;
       margin-right: 30px;
     }
+    // .currentTap {
+    //   border-bottom: 5px solid red;
+    //   padding-bottom: 7px;
+    //   text-decoration: none;
+    //   color: rgba(0, 0, 0, 0.801);
+    // }
   }
 }
 .router-link-active{

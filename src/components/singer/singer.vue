@@ -43,14 +43,22 @@ export default {
       c1:0,
       c2:0,
       c3:0,
-      artists:'',
       isrefresh: true,
     }
   },
   created() {
-        
+    addEventListener('click', this.click, false)
+  },
+  beforeDestroy() {
+    removeEventListener('click', this.click, false)
   },
   methods: {
+    afresh() {
+      this.isrefresh = false;
+      this.$nextTick(()=> {
+        this.isrefresh = true;
+      })
+    },
     currentTag1(index) {
       // 语种
       this.c1 = index;
@@ -75,19 +83,13 @@ export default {
           break;
       }
       // 强制使子组件刷新
-      this.isrefresh = false;
-      this.$nextTick(()=> {
-        this.isrefresh = true;
-      })
+      this.afresh();
     },
     currentTag2(index) {
       // 分类
       this.c2 = index;
       this.type = index == 0?index = -1:index;
-      this.isrefresh = false;
-      this.$nextTick(()=> {
-        this.isrefresh = true;
-      })
+      this.afresh();
     },
     currentTag3(index) {
       // 筛选
@@ -99,25 +101,20 @@ export default {
         this.initial = this.initial1[index];
         this.initial = this.initial.toLowerCase();
       }
-      this.isrefresh = false;
-      this.$nextTick(()=> {
-        this.isrefresh = true;
-      })
+      this.afresh();
     },
     
   },
   mounted(){
-    axios.get('https://autumnfish.cn/artist/list?type='+ this.type +'&area='+ this.area +'&initial='+ this.initial +'').then((res)=>{
-          // console.log(res);
-          this.artists = res.data.artists;
-    });
+    
     }
 }
 </script>
 
 <style>
 .singer{
-  width: 60%;
+  /* width: 60%; */
+  width: 1200px;
   margin: 0 auto;
   margin-top: 40px;
 }

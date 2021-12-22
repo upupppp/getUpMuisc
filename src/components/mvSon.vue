@@ -5,12 +5,17 @@
         <span class="el-icon-arrow-left"></span> <span>MV详情</span>
       </h1>
       <div class="mv" >
-        <video :src="url" ref="mvMedia" controls autoplay disablePictureInPicture @click="toPlay()" v-if="url"></video>
+        <video :src="url" ref="mvMedia" 
+        controls 
+        autoplay 
+        disablePictureInPicture 
+        @click="toPlay()" 
+        v-if="url"></video>
         <span class="el-icon-video-play" @click="toplay()" v-show="!mediaFlag"></span>
       </div>
       <div class="content">
         <div class="avatar">
-          <el-avatar :size="80" mode="widthFix" :src="avatar"></el-avatar>
+          <el-avatar :size="80" v-if="mv.artists" mode="widthFix" :src="mv.artists[0].img1v1Url"></el-avatar>
           <span class="name" v-for="(item,index) in name" :key="index">
             {{item}}
           </span>
@@ -20,108 +25,30 @@
             <h1>{{mv.name}}</h1>
             <div class="text">
               <p class="time">发布:{{mv.publishTime}}</p>
-              <p class="count">播放:{{mv.playCount}}次</p>
+              <p class="count">播放:{{mv.playCount > 100000?Math.floor(mv.playCount/10000)+'万':mv.playCount}}次</p>
             </div>
           </div>
           <div class="status" v-if="info">
             <!-- 是否被点赞再info 是否被收藏item里面 -->
-            <div>赞({{info.likedCount}})</div>
-            <div>收藏({{mv.subCount}})</div>
+            <div @click="sendTip(1)" :style="info.liked == true?'color:red':'color:#303133'">{{info.liked == true?'已赞'+info.likedCount:'赞'+(info.likedCount)}}</div>
+            <div @click="sendTip(2)" :style="subed == true?'color:red':'color:#303133'">{{subed == true?'已收藏'+mv.subCount:'收藏'+(mv.subCount)}}</div>
             <div>分享({{info.shareCount}})</div>
             <div>下载MV</div>
           </div>
         </div>
+        <div class="infoComment">
+      <div class="text">
+        评论<span>({{comment.total}})</span>
+      </div>
+      <textarea name="" id="" v-model="text" @keydown.enter="sendComment()">
+      </textarea>
+      <span class="textCount">{{140-textSum}}</span>
+      <div class="comment-btn" @click="sendComment()">
+        评论
+      </div>
+    </div>
         <div class="comment">
-          <div class="infoComment">
-            <div class="text">
-              评论<span>({{comment.total}})</span>
-            </div>
-            <textarea name="" id="" v-model="text" @keydown.enter="sendComment()">
-            </textarea>
-            <span class="textCount">{{140-textSum}}</span>
-            <div class="comment-btn" @click="sendComment()">
-              评论
-            </div>
-          </div>
-          <div class="hotComment" v-if="comment.hotComments !== undefined&& comment.hotComments.length > 0">
-            <div class="text">
-              精彩评论
-            </div>
-            <div class="content" v-for="(item,index) in getHotComment" :key="index">
-              <div class="img">
-                <el-avatar :size="60" mode="widthFix" :src="item.user.avatarUrl">
-
-                </el-avatar>
-              </div>
-              <div class="comment-text">
-                <div class="top">
-                  <span class="nickname">{{item.user.nickname}}</span>:{{item.content}}
-                  <div class="replied" v-if="item.beReplied.length > 0">
-                    <p>@{{item.beReplied[0].user.nickname}}:<span>{{item.beReplied[0].content}}</span> </p>
-                  </div>
-                </div>
-                <div class="bottom">
-                  <div>
-                    {{getCommentTime(item.time)}}
-                  </div>
-                  <div class="comment-shop">
-                    <div class="el-icon-toilet-paper">{{item.likedCount}}</div>
-                    <div class="el-icon-position"></div>
-                    <div class="el-icon-chat-line-round"></div>
-                    <!-- el-icon-chat-line-round -->
-                  </div>
-                </div>
-              </div>
-              
-            </div>
-            <div class="tip">
-              更多精彩评论<span> > </span>
-            </div>
-          </div>
-          <div class="newComment" ref="newComment">
-            <div class="text" v-loading="loading" element-loading-spinner="el-icon-loading" customClass="loadingColor">
-              最新评论({{comment.total}})
-            </div>
-            <div class="content" v-show="!loading" v-for="(item,index) in comment.comments" :key="index">
-              <div class="img">
-                <el-avatar :size="60" mode="widthFix" :src="item.user.avatarUrl">
-
-                </el-avatar>
-              </div>
-              <div class="comment-text">
-                <div class="top">
-                  <span class="nickname">{{item.user.nickname}}</span>:{{item.content}}
-                  <div class="replied" v-if="item.beReplied.length > 0">
-                    <p>@{{item.beReplied[0].user.nickname}}:<span>{{item.beReplied[0].content}}</span> </p>
-                  </div>
-                </div>
-                <div class="bottom">
-                  <div>
-                    {{getCommentTime(item.time)}}
-                  </div>
-                  <div class="comment-shop">
-                    <div class="el-icon-toilet-paper"><span v-if="item.likedCount">{{item.likedCount}}</span></div>
-                    <div class="el-icon-position"></div>
-                    <div class="el-icon-chat-line-round"></div>
-                    <!-- el-icon-chat-line-round -->
-                  </div>
-                </div>
-              </div>
-              
-            </div>
-            <div class="paging" v-if="!loading">
-              <el-pagination
-              background
-              layout="prev, pager, next"
-              :hide-on-single-page="comment.total<20"
-              :pager-count="9"
-              @next-click="next()"
-              @prev-click="prev()"
-              @current-change="currentPage"
-              :total="comment.total">
-              </el-pagination>
-            </div>
-          </div>
+          <comment v-if="isrefresh"></comment>
         </div>
       </div>
     </div>
@@ -129,13 +56,13 @@
       <div class="title">
         <span>相关推荐</span>
       </div>
-      <div class="content" v-for="(item,index) in mvs" :key="index">
+      <div class="content" @click="goUrl(item.id)" v-for="(item,index) in mvs" :key="index">
         <div class="img">
           <img :src="item.cover" alt="">
           <p class="count">
             <span class="el-icon-video-play">
             </span>
-            {{item.playCount}}
+            {{item.playCount > 100000?Math.floor(item.playCount/10000)+'万':item.playCount}}
           </p>
           <p class="duration">{{getTime(item.duration)}}</p>
         </div>
@@ -145,30 +72,42 @@
         </div>
       </div>
     </div>
+    <transition name="el-fade-in">
+    <div class="tipMsg" v-show="show">
+      {{tip}}
+    </div>
+    </transition>
   </div>
 </template>
 <script>
 import axios from 'axios'
+import comment from './comment.vue'
 export default {
+  components:{
+    comment
+  },
   props: {
   },
   data(){
     return{
       url:String,
       item:Object,
-      avatar:String,
+      // avatar:String,
       mv:Object,
       name:[],
       mvs:null,
       info:Object,
       id:null,
-      text:"",
-      textSum:0,
-      comment:Object,
-      offset:1,
+      offsetChange:0,
       loading:true,
       mediaFlag:true,
-      offsetChange:0,
+      tip:"",
+      text:"",
+      show:false,
+      subed:false,
+      comment:Object,
+      textSum:0,
+      isrefresh: true,
     }
   },
   computed: {
@@ -180,62 +119,135 @@ export default {
     }
   },
   created() {
-    this.avatar = this.$route.query.avatar;
+    // this.avatar = this.$route.query.avatar;
     this.item = this.$route.query.item;
     this.id = this.$route.query.id;
-    console.log('item',this.item);
-    console.log('id:',this.id);
+    this.$store.state.flag = false;
+    // console.log('item',this.item);
+    // console.log('id:',this.id);
+    this.$store.state.audioMedia.pause();
     window.addEventListener('scroll',this.pipStatus);
+    addEventListener('click', this.click, false)
+    document.documentElement.scrollTop = 0;
+  },
+  beforeDestroy() {
+    removeEventListener('click', this.click, false)
+    this.$store.state.flag = true;
   },
   methods: {
-    getName() {
-      // let Name = [];
-      for(let i = 0; i < this.mv.artists.length; i++) {
+    sendTip(type) {
+      if(type == 1) {
+        if(this.info.liked == true) {
+          this.tip = "已取消赞";
+        }
+        else {
+          this.tip = "点赞";
+        }
+        this.sendLiked();
+        let timer = setInterval(()=> {
+          this.getInfo();
+        },500)
+        this.show = true;
+        setTimeout(() => {
+          this.show = false;
+          clearInterval(timer);
+        }, 1000);
+      }
+      if(type == 5) {
+        this.tip = "评论成功!";
+        this.show = true;
         
+        setTimeout(() => {
+          this.show = false;
+        }, 1000);
+      }
+      else if(type == 2){
+        if(this.subed == true) {
+          console.log(this.subed);
+          this.tip = "视频取消收藏成功!";
+          this.getSub(0);
+        }
+        else {
+          console.log(this.subed);
+          this.tip = "收藏成功!";
+          this.getSub(1);
+        }
+        let timer = setInterval(()=> {
+          this.getMV();
+        },500)
+        this.show = true;
+        setTimeout(() => {
+          this.show = false;
+          clearInterval(timer);
+        }, 1000);
+      }
+    },
+    getMV() {
+      let timer = new Date().getTime();
+      let cookie = localStorage.getItem('cookie');
+      axios.get('http://localhost:3000/mv/detail?mvid='+ this.id +'&timestamp='+ timer +'&cookie='+ cookie +'').then((res)=>{
+        console.log('mvDetail:',res);
+        this.mv = res.data.data;
+        this.subed = res.data.subed;
+    });
+    },
+    goUrl(id) {
+      this.$router.push({path:'/mvSon', query: {id:id}})
+    },
+    getSub(t) {
+      let timer = new Date().getTime();
+      let cookie = localStorage.getItem('cookie');
+      if(cookie) {
+        axios.get('/mv/sub?t='+ t +'&mvid='+ this.id +'&timestamp='+ timer +'&cookie='+ cookie +'').then((res)=>{
+          // console.log('sendSub:',res);
+        });
+      }
+      else {
+        this.loginTip();
+      }
+    },
+    loginTip() {
+        this.tip = '请登录!',
+        this.show = true;
+        setTimeout(()=>{
+          this.show = false
+        },1000);
+    },
+    sendLiked() {
+      let cookie = localStorage.getItem('cookie');
+      if(cookie) {
+        let t = this.info.liked == false?1:0;
+        let time = new Date().getTime();
+        axios.get('/resource/like?id='+ this.id +'&t='+ t +'&type=1&timestamp='+ time +'&cookie='+ cookie +'').then((res)=>{
+          // console.log('liked:',res);
+        });
+      }
+      else {
+        this.loginTip();
+      }
+    },
+    getInfo() {
+      let timer = new Date().getTime();
+      let cookie = localStorage.getItem('cookie');
+      axios.get('/mv/detail/info?mvid='+ this.id +'&timestamp='+ timer +'&cookie='+ cookie +'').then((res)=>{
+          this.info = res.data;
+          // console.log('mvInfo:',res);
+      });
+    },
+    getName() {
+        for(let i = 0; i < this.mv.artists.length; i++) {
         if(i > 0) {
-          this.mv.artists[i].name = '/' + this.mv.artists[i].name;
+          this.mv.artists[i].name =' / '+ this.mv.artists[i].name;
           this.name.push(this.mv.artists[i].name);
         }
       }
       this.name.unshift(this.mv.artists[0].name);
-      console.log('name:',this.name);
     },
     getTime(time) {
       let second = Math.floor(time / 1000);
       let min = Math.floor(second / 60 % 60);
       let sec = Math.floor(second % 60);
       return (min >= 10?min:'0'+ min) + ':' + (sec >= 10?sec:'0' + sec);
-    },
-    getCommentTime(time) {
-      let date = new Date(time);
-      let month = date.getMonth() - 1;
-      let day = date.getDate();
-      let hours =date.getHours(); 
-      let min = date.getMinutes();
-      return month + '月' + day + '日' + ' ' + hours + ':' + (min >= 10?min:'0'+ min);
-    },
-    ms() {
-      // let mv = this.$refs.mvSon;
-      document.documentElement.scrollTop = this.$refs.newComment.offsetTop + 100;
-      console.log(this.$refs.newComment.offsetTop);
-      axios.get('https://autumnfish.cn/comment/mv?id='+ this.id +'&offset='+ this.offset +'').then((res)=>{
-          console.log('comment2:',res);
-          this.comment = res.data;
-          // this.url = res.data.data.url;
-    });
-    },
-    next() {
-      this.offset += this.offset;
-      this.ms();
-    },
-    prev() {
-      this.offset -= this.offset;
-      this.ms();
-    },
-    currentPage(current) {
-      this.offset = current;
-      this.ms();
-      // console.log(current);
     },
     toplay() {
       // 负责暂停时控制图标从出现
@@ -244,14 +256,14 @@ export default {
           if(mvMedia.paused) {
             mvMedia.play();
           }
-          console.log(mvMedia.VideoTrackList)
+          // console.log(mvMedia.VideoTrackList)
     },
     toPlay() {
           let mvMedia = this.$refs.mvMedia;
           
           this.mediaFlag = mvMedia.paused;
           // mvMedia.onPause = ()=>console.log(11);
-          console.log(mvMedia.VideoTrackList)
+          // console.log(mvMedia.VideoTrackList)
     },
     pipStatus() {
       // 747 是功能区class 的offsetTop,但是因为方法调用顺序的为问题,改用固定的高度
@@ -260,7 +272,7 @@ export default {
       // console.log(document.documentElement.scrollTop);
       // console.log(this.$refs.shop.clientHeightTop);
       // let mvMedia = this.$refs.mvMedia;
-      console.log(this.offsetChange);
+      // console.log(this.offsetChange);
       if(document.documentElement.scrollTop >= 747) {
         this.offsetChange = 1;
       }
@@ -268,23 +280,35 @@ export default {
         this.offsetChange = 0;
       }
     },
+    refresh() {
+      this.isrefresh = false;
+      this.$nextTick(()=> {
+      this.isrefresh = true;
+      })
+    },
     sendComment() {
       let time = new Date().getTime();
-      axios.get('https://autumnfish.cn/comment?t=1&type=1&id='+ this.id +'&content='+ this.text +'&timestamp='+ time +'').then((res)=>{
-          console.log('url111:',res);
-          // this.url = res.data.data.url;
-          
-    });
-    console.log(this.text);
-    console.log(this.id);
-    this.text = "";
+      let cookie = localStorage.getItem("cookie");
+      // console.log(cookie);
+      if(cookie) {
+        axios.get('/comment?t=1&type=1&id='+ this.id +'&content='+ this.text +'&timestamp='+ time +'&cookie='+ cookie +'').then((res)=>{
+          // console.log('sendComment:',res);
+          this.sendTip(5);
+        }).catch((err)=> {
+        console.log('错误:',err);
+        });
+        this.text = "";
+      }
+      else {
+        this.loginTip();
+      }
+      setTimeout(() => {
+        this.refresh();
+      }, 500);
     }
   },
   // 监听函数watch:里面方法的名字必须所监听的属性,当被监听的属性的值发生变化时,触发方法
   watch:{
-    text() {
-      this.textSum = this.text.length;
-    },
     offsetChange() {
       let video = this.$refs.mvMedia;
         if(this.offsetChange == 1) {
@@ -293,58 +317,60 @@ export default {
           console.log('开启画中画')
           // console.log(video.requestPictureInPicture());
         }
-        
       if(this.offsetChange == 0) {
           video.disablePictureInPicture = true;
           setTimeout(()=>document.exitPictureInPicture(),200);
           console.log('关闭画中画');
       }
-    }
+    },
+    text() {
+      this.textSum = this.text.length;
+    },
   },
   mounted(){
     // setInterval(()=>document.addEventListener(''))
-    axios.get('https://autumnfish.cn/mv/url?id='+ this.id +'').then((res)=>{
+    axios.get('http://localhost:3000/mv/url?id='+ this.id +'').then((res)=>{
           console.log('url:',res);
           this.url = res.data.data.url;
     });
-    axios.get('https://autumnfish.cn/mv/detail?mvid='+ this.id +'').then((res)=>{
-          console.log('mvDetail:',res);
-          this.mv = res.data.data;
-          this.getName();
-    });
-    axios.get('https://autumnfish.cn/simi/mv?mvid='+ this.id +'').then((res)=>{
+    axios.get('http://localhost:3000/simi/mv?mvid='+ this.id +'').then((res)=>{
           this.mvs = res.data.mvs;
           console.log('mvDetail1:',this.mvs);
     });
-    axios.get('https://autumnfish.cn/mv/detail/info?mvid='+ this.id +'').then((res)=>{
-          this.info = res.data;
-          console.log('mvInfo:',res);
-    });
-    axios.get('https://autumnfish.cn/comment/mv?id='+ this.id +'').then((res)=>{
-          console.log('comment:',res);
-          this.comment = res.data;
-          setTimeout(()=>this.loading = false,2000);
-          // this.url = res.data.data.url;
-    });
-    axios.get('https://autumnfish.cn/user/detail?uid=32953014').then((res)=>{
+    this.getMV();
+    this.getInfo();
+    axios.get('http://localhost:3000/user/detail?uid=32953014').then((res)=>{
           console.log('comment1:',res);
           // this.comment = res.data;
           // this.url = res.data.data.url;
           let mvMedia = this.$refs.mvMedia;
           this.mediaFlag = mvMedia.paused;
           this.video = this.$refs.mvMedia;
+          setTimeout(()=> {
+            this.getName();
+          },300)
+          
           
     });
+    axios.get('http://localhost:3000/comment/mv?id='+ this.id +'').then((res)=>{
+          console.log('comment:',res);
+          this.comment = res.data;
+          setTimeout(()=>this.loading = false,2000);
+          // this.url = res.data.data.url;
+      });
     },
-    destroyed() {
-      let video = this.$refs.mvMedia;
-      let mvMedia = this.$refs.mvMedia;
-      if(this.offsetChange == 1) {
-          document.exitPictureInPicture();
-          // mvMedia.pause();
-          this.video.pause();
-        }
-    }
+  watch:{
+    '$route': function (to, from) {
+        this.$router.go(0)
+      }
+  },
+  destroyed() {
+    if(this.offsetChange == 1) {
+        document.exitPictureInPicture();
+        // mvMedia.pause();
+        this.video.pause();
+      }
+  }
 }
 </script>
 
@@ -443,21 +469,20 @@ export default {
             }
           }
         }
-        .comment {
-          .infoComment {
-            margin-bottom: 50px;
-            // background: chartreuse;
-            .text {
-              margin-bottom: 20px;
-              font-size: 35px;
-              font-weight: 700;
-              color:$b-first;
-              span {
-                font-size: 16px;
-                color: $b-third;
-              }
-            }
-            textarea {
+        .infoComment {
+    margin-bottom: 50px;
+    // background: chartreuse;
+    .text {
+      margin-bottom: 20px;
+      font-size: 35px;
+      font-weight: 700;
+      color:$b-first;
+      span {
+        font-size: 16px;
+        color: $b-third;
+      }
+    }
+    textarea {
               width: 880px;
               height: 100px;
               border-radius: 5px;
@@ -466,14 +491,14 @@ export default {
               color: $b-first;
               font-weight:500;
               
-            }
-            .textCount {
+    }
+    .textCount {
               color: $b-fourth;
               position: relative;
               top:-10px;
               left: -40px;
-            }
-            .comment-btn {
+    }
+    .comment-btn {
               color: $b-first;
               width: 70px;
               height: 35px;
@@ -488,99 +513,10 @@ export default {
               &:hover {
                 background: rgba(128, 128, 128, 0.089);
               }
-            }
-          }
-          .hotComment {
-            width: 800px;
-            // background: chocolate;
-            .text {
-              font-size: 20px;
-              font-weight: 700;
-              margin-bottom: 20px;
-            }
-            .content {
-              // background: chocolate;
-              // height: 100px;
-              padding-bottom: 30px;
-              display: flex;
-              border-bottom: 1px solid $bd-third;
-              * {
-                margin-top: 7px;
-              }
-              div {
-                width: 725px;
-                flex: 1;
-              }
-              .comment-text {
-                margin-top: 10px;
-                .top {
-                  .nickname {
-                    color: #40a0ff;
-                    cursor: pointer;
-                  }
-                  .replied {
-                    background-color: rgba(128, 128, 128, 0.089);
-                    padding: 5px 10px 10px 10px;
-                    border-radius: 5px;
-                    p {
-                      color: #40a0ff;
-                      cursor: pointer;
-                      span {
-                        color: $b-first;
-                        cursor: default;
-                      }
-                    }
-                  }
-                }
-                .bottom {
-                  display: flex;
-                  margin-top: 20px;
-                  color: $b-third;
-                  div {
-                    // background: chocolate;
-                    // height: 30px;
-                    // line-height: 30px;
-                    margin: 0px;
-                    padding: 0px;
-                  }
-                  .comment-shop {
-                    position: relative;
-                    left: 190px;
-                    div {
-                      display: inline-block;
-                      width: 60px;
-                      // height: 30px;
-                      // background: chocolate;
-                      // text-align: left;
-                      text-align: center;
-                      // padding: 0px 15px 0px 15px;
-                      &:nth-child(2) {
-                        border-left: 1px solid $bd-first;
-                        border-right: 1px solid $bd-first;
-                      }
-                    }
-                    
-                  }
-                }
-              }
-              
-            }
-          }
-          .newComment {
-            @extend .hotComment;
-            padding-bottom: 50px;
-            padding-top: 50px;
-            .text {
-              font-size: 20px;
-              font-weight: 700;
-              
-            }
-            .paging {
-              position: relative;
-              top: 50px;
-              left: 30%;
-            }
-          }
+    }
+  }
+        .comment {
+          
         }
       }
       .tip {
@@ -628,7 +564,7 @@ export default {
           .count {
             position: relative;
             top: -105px;
-            left: 120px;
+            left: 130px;
           }
           .duration {
             position: relative;
@@ -644,6 +580,17 @@ export default {
           }
         }
       }
+    }
+    .tipMsg {
+      color: white;
+      background: #303133;
+      padding: 25px 30px;
+      border-radius: 30px;
+      position: fixed;
+      left: 40%;
+      top: 30%;
+      z-index: 999;
+      font-size: 22px;
     }
   }
 </style>

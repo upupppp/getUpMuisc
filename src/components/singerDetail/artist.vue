@@ -30,7 +30,7 @@ export default {
   methods: {
   },
   mounted(){
-    axios.get('https://autumnfish.cn/simi/artist?id='+ this.id +'').then((res)=>{
+    axios.get('/simi/artist?id='+ this.id +'').then((res)=>{
           // this.id = res;
           this.artists = res.data.artists;
           console.log('artists:',this.artists);
